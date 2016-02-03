@@ -1,0 +1,104 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+<title>Introduction</title>
+<link type="text/css" rel="stylesheet" href="bootstrap.min.css" />
+</head>
+
+<body>
+
+<ul>
+	<li><a href="#DocIntro">Introduction</a></li>
+	<li><a href="#DocQuickSample">Un exemple rapide</a></li>
+	<li><a href="#DocWhatElse">Quoi d&#39;autre ?</a></li>
+	<li><a href="#DocStartupTemplate">Des modèles de projets prêt à l&#39;emploi</a></li>
+	<li><a href="#DocHowToUse">Comment l&#39;utiliser ?</a></li>
+</ul>
+<h3 id="DocIntro">Introduction</h3>
+<p>Nous créons des applications différentes à partir de besoins spécifiques. Cependant nous nous avons aussi besoin d&#39;implémenter des <strong>composants communs</strong> dans les différentes couches applicatives. <strong>Droits utilisateurs, validation des saisies, gestion des erreurs, traçabilité, internationalisation, couche d&#39;accès aux données, paramétrages, détections d&#39;évènements</strong>... sont des exemples de composants communs. Nous mettons donc au point des <strong>composants architecturés</strong> et des <strong>bonnes pratiques</strong> comme le développement par <strong>couches</strong> et une architecture <strong>modulaire</strong>, le <strong>Domain Driven Design</strong>, <strong>l&#39;injection de dépendance</strong> et d&#39;autres choses. Nous essayons de développer des applications respectant certaines <strong>conventions</strong>.</p>
+<p>Cet effort consomme beaucoup de temps et pour en bénéficier dans chaque projet, beaucoup de sociétés d&#39;éditions de logiciels créent leur<strong> &quot;Framework maison&quot;</strong>. De cette manière, elles développeront leurs nouvelles applications plus vite et le résultat sera plus fiable. Mais toutes les sociétés n&#39;ont pas cette chance. La plupart d&#39;entre elles <strong>n&#39;ont pas assez de temps, d&#39;argent et de personnel</strong> pour développer ce type de Framework. Et même si elles ont la possibilité d&#39;en créer un, la charge liée au travail de documentation, de maintenance évolutive et corrective est souvent hors de portée.</p>
+
+<p>ASP.NET Boilerplate (ABP) est un Framework, <strong>open source et bien documenté</strong>, dont l&#39;idée de départ est de &quot;développer un framework commun pour toutes les sociétés d&#39;éditions de logiciels et tous les développeurs !&quot;. Ce n&#39;est pas un simple framework. Il fournit un <strong>modèle d&#39;architecture</strong> basé sur le <strong>Domain Driven Design</strong> et mettant en oeuvre un ensemble de <strong>bonne pratiques</strong>.</p>
+
+<h3 id="DocQuickSample">Un exemple rapide</h3>
+<p>Regardons succintement les bénéfices d&#39;ABP :</p>
+<pre lang="cs">public class TaskAppService : ApplicationService, ITaskAppService
+{
+    private readonly IRepository&lt;Task&gt; _taskRepository;
+
+    public TaskAppService(IRepository&lt;Task&gt; taskRepository)
+    {
+        _taskRepository = taskRepository;
+    }
+
+    [AbpAuthorize(MyPermissions.UpdatingTasks)]
+    public async Task UpdateTask(UpdateTaskInput input)
+    {
+        Logger.Info(&quot;Updating a task for input: &quot; + input);
+
+        var task = await _taskRepository.FirstOrDefaultAsync(input.TaskId);
+        if (task == null)
+        {
+            throw new UserFriendlyException(L(&quot;CouldNotFoundTheTask<span lang="tr">Message</span>&quot;));
+        }
+
+        input.MapTo(task);
+    }
+}</pre>
+<p>Cet exemple montre une méthode de la <strong><a href="/Pages/Documents/Dependency-Injection">couche Service</a></strong> de l&#39;application. La Couche Service, en DDD, est utilisée directement par la <em>couche présentation</em> pour exécuter différentes tâches applicatives. Admettons que la méthode UpdateTask est appelée en AJAX. Voici quelques avantages d&#39;ABP pour cet usage :</p>
+<ul>
+	<li><strong><a href="/Pages/Documents/Dependency-Injection">Injection de dépendances</a></strong>: ABP repose sur une infrastructure robuste, basée sur des conventions, intégrant et permettant l&#39;usage de l&#39;Injection de Dépendance. Puisque cette classe fait partie de la Couche Service, elle est naturellement définie dans le conteneur d&#39;Injection de Dépendance comme éphémère (<em>&quot;transient&quot;, c&#39;est à dire créée à chaque requête</em>). Ce conteneur s&#39;occupe d&#39;injecter toutes les dépendances (grâce à IRepository&lt;Task&gt; dans cet exemple).</li>
+	<li><strong><a href="/Pages/Documents/Repositories">Entrepôt</a></strong>: 
+	ABP peut créer un entrepôt standard pour chaque entité (<em>IRepository&lt;Task&gt; dans l&#39;exemple)</em>. L&#39;entrepôt standard fournit plusieurs méthodes pratiques comme <em>FirstOrDefault</em>, mentionnée dans l&#39;exemple. Il est possible d&#39;étendre facilement l&#39;entrepôt standard pour pouvoir fournir d&#39;autres fonctionnalités. Ces entrepôts ont pour but de masquer la complexité liée à la base de données et à l&#39;usage d&#39;ORMs ; cela simplifie les interactions avec les données.</li>
+	<li><strong><a href="/Pages/Documents/Authorization">Droits d&#39;accès</a></strong>: 
+	ABP peut vérifier les droits utilisateurs. Il évite de laisser l&#39;utilisateur accéder à la méthode <em>UpdateTask</em>&nbsp; alors qu&#39;il n&#39;en a pas les droits ou qu&#39;il n&#39;est pas authentifié. Cela simplifie la mise en place des droits d&#39;accès grâce à l&#39;utilisation d&#39;attributs et d&#39;autres moyens de gérer les autorisations.</li>
+	<li><strong><a href="/Pages/Documents/Validating-Data-Transfer-Objects">
+	Validation</a></strong>: ABP contrôle automatiquement les données manquantes. Il contrôle aussi la cohérence des données, pour l&#39;ensemble des propriétés, avec la description faite dans les annotations <em>(data annotations)</em> standards ainsi que les méthodes de validations personnalisées. Si la saisie de l&#39;utilisateur n&#39;est pas conforme, cela déclenche une erreur explicite.</li>
+	<li><strong><a href="/Pages/Documents/Audit-Logging">Surveillance et traçabilité</a></strong>: 
+	    Utilisateur, navigateur, adresse IP, appels aux services, méthodes, paramètres, durée de l&#39;appel, durée d&#39;exécution et beaucoup d&#39;autres informations sont automatiquement disponibles selon un paramétrage basé sur des conventions.</li>
+	<li><a href="/Pages/Documents/Unit-Of-Work"><strong>Taches unitaires</strong></a>: 
+	In ABP, chaque méthode de la couche service représente une tâche unitaire. Elle fournit automatiquement une connexion et ouvre une transaction au début de la tâche sollicitée. Si la tâche s&#39;est exécutée sans la moindre erreur, la transaction valide les changements et la connexion est détruite. Cela fonctionne ainsi même lorsque la tâche utilise différents entrepôts ou méthodes ; elles seront toutes atomiques (transactionnelles). Toutes les modifications des entités ne seront donc enregistrées lorsque la transaction enregistre l&#39;ensemble des modifications. D&#39;ailleurs, nous n&#39;avons pas réellement besoin d&#39;appeler la méthode <em>_repository.Update(task)</em> comme cela est fait dans l&#39;exemple.</li>
+	<li><a href="/Pages/Documents/Handling-Exceptions"><strong>Gestion des erreurs</strong></a>: La plupart du temps, nous ne devrions jamais gérer les erreurs manuellement dans une application web. Toutes les erreurs sont interceptées par défaut avec ABP. Lorsqu&#39;une erreur se produit, ABP en garde trace et retourne un résultat cohérent au client. Par exemple, s&#39;il s&#39;agit d&#39;une requête AJAX, du contenu JSON sera retourné pour informer de l&#39;erreur qui s&#39;est produite. L&#39;erreur est cachée au client à moins qu&#39;il s&#39;agisse d&#39;une UserFriendlyException comme dans l&#39;exemple précédent. Cela permet donc d&#39;obtenir des informations précises sur les erreurs tout en fournissant des indications compréhensibles aux utilisateurs.</li>
+	<li>J<strong><a href="/Pages/Documents/Logging">ournalisation</a></strong>: Comme indiqué précédemment, il est facile d&#39;alimenter le journal des évènements à l&#39;aide de l&#39;objet <em>Logger </em>disponible dans la classe parente. 
+	Log4Net est la librairie utilisée par défaut mais cela peut être facilement modifié.</li>
+	<li><strong><a href="/Pages/Documents/Localization">Internationalisation</a></strong>: 
+	    Vous avez remarqué l&#39;usage de la méthode <em>L</em> lors du déclenchement de l&#39;erreur. Cela permet de s&#39;adresser automatiquement à l&#39;utilisateur selon sa localisation. Pour cela, il a bien sûr été indispensable de définir quelque part&nbsp; <em>CouldNotFoundTheTask</em><span lang="tr"><em>Message</em></span> (reportez vous à la documentation <a href="/Pages/Documents/Localization">localisation</a> pour plus de détails).</li>
+	<li><strong><a href="/Pages/Documents/Data-Transfer-Objects">Auto Mapping</a></strong>: 
+	    A la dernière ligne, nous utilisons l&#39;extension <em>MapTo</em> d&#39;ABP pour alimenter les propriétés des entités à partir du contenu des champs de saisie. La librairie AutoMapper est utilisée pour réaliser ces correspondances. Bien entendu, il est facile de se baser sur des conventions pour réaliser ces correspondances.</li>
+	<li><strong><a href="/Pages/Documents/Dynamic-Web-API">API Web dynamique</a></strong>: 
+	<em>TaskAppService</em> est une classe basique pour le moment. (elle ne fournit pas de traitements métiers spécifiques). Nous écrivons généralement un code de liaison (<em>wrapper</em>) permettant à une Web API d&#39;exposer des méthodes utilisables côté client via javascript. ABP s&#39;occupe de générer cela au moment de l&#39;exécution. De ce fait, nous pouvons utiliser la couche service directement, côté client.</li>
+	<li><strong><a href="/Pages/Documents/Dynamic-Web-API#DocDynamicProxy">
+	    Proxy Javascript dynamique</a></strong>: ABP crée également un proxy javascript permettant d&#39;utiliser les méthodes de la couche service aussi simplement que si cela était des méthodes clientes.</li>
+</ul>
+<p>Vous voyez tous ces bénéfices alors qu&#39;il ne s&#39;agit que d&#39;un exemple tout simple ? Toutes ces taches prennent du temps de mises en place, habituellement ; mais elles sont déjà toutes disponibles grâce à ABP.</p>
+
+<h3 id="DocWhatElse">Quoi d&#39;autre ?</h3>
+<p>Au delà de cet exemple basique, ABP fournit une infrastructure et un modèle d&#39;application robustes. Voici quelques autres fonctionnalités d&#39;ABP:</p>
+<ul>
+	<li><strong><a href="/Pages/Documents/Module-System">Modularité</a></strong>: 
+	    En fournissant une infrastructure solide favorisant la conception de modules réutilisables.</li>
+	<li><strong><a href="/Pages/Documents/Data-Filters">Filtrage des données</a></strong>: 
+	    Cela permet d&#39;automatiser certains filtres pour implémenter quelques modèles de conception comme la suppression-douce (<em>soft-delete</em>) et l&#39;usage multi-clients (multi-tenancy).</li>
+	<li><strong>Multi clients</strong>: Une fonctionnalité pour gérer différentes entités utilisatrices au sein d&#39;une seule base de données.</li>
+	<li><strong><a href="/Pages/Documents/Setting-Management">Administration du paramétrage</a></strong>: 
+	    Offre des fonctionnalités robustes pour récupérer/modifier l&#39;application et pour paramétrer les droits utilisateurs et clients.</li>
+	<li><strong>Tests unitaires</strong>: Tout a été construit en pensant aux tests unitaires. Des classes mères sont disponibles pour simplifier l&#39;intégration des tests unitaires. Consultez <a href="http://www.codeproject.com/Articles/871786/Unit-testing-in-Csharp-using-xUnit-Entity-Framewor">
+	    cet article</a> qui donne des détails sur le sujet.</li>
+</ul>
+<p>Pour découvrir toutes les fonctionnalités, reportez vous à la <a href="/Pages/Documents">documentation</a>.</p>
+
+<h3 id="DocStartupTemplate">Des modèles de projet prêts à l&#39;emploi</h3>
+<p>Lorsqu&#39;on crée une nouvelle solution, créer les différentes couches, installer les bons packages nuget, créer une zone avec un simple menu... cela prend vraiment (trop) de temps.</p>
+<p>ASP.NET Boilerplate vous propose différents <a href="http://www.aspnetboilerplate.com/Templates">modèles de projets</a> tout de suite prêts à l&#39;emploi. Ces modèles mettent en oeuvre le <strong>SPA</strong> 
+(Single-Page Application) and le <strong>MPA</strong> (Multi-Page MVC Applications). Vous avez aussi le choix de différents ORMs pré configurés.</p>
+
+<h3 id="DocHowToUse">Comment l&#39;utiliser</h3>
+<p>ASP.NET Boilerplate est développé à l&#39;aide de <strong>
+    <a href="https://github.com/aspnetboilerplate">Github</a></strong> et intégrable depuis <strong><a href="/Pages/Documents/Nuget-Packages">Nuget</a></strong>. 
+    La façon la plus facile et rapide de débuter avec ABP est de créer une solution via un <a href="http://www.aspnetboilerplate.com/Templates">modèle de projet</a> et de suivre la <a href="/Pages/Documents">documentation</a>.</p>
+
+</body>
+
+</html>
