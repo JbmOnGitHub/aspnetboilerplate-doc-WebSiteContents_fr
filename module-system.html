@@ -10,25 +10,21 @@
 <body>
 
 <ul>
-	<li><a href="#DocIntroModules">Introduction to modules</a></li>
-	<li><a href="#DocModuleLifecycleEvents">Lifecycle events</a><ul>
-		<li><a href="#DocModulePreInit">PreInitialize</a></li>
-		<li><a href="#DocModuleInit">Initialize</a></li>
-		<li><a href="#DocModulePostInit">PostInitialize</a></li>
-		<li><a href="#DocModuleShutdown">Shutdown</a></li>
+	<li><a href="#DocIntroModules">Introduction aux modules</a></li>
+	<li><a href="#DocModuleLifecycleEvents">Cycle de vie des évènements</a><ul>
+		<li><a href="#DocModulePreInit">Préinitialisation</a></li>
+		<li><a href="#DocModuleInit">Initialisation</a></li>
+		<li><a href="#DocModulePostInit">Post-Initialisation</a></li>
+		<li><a href="#DocModuleShutdown">Fermeture</a></li>
 	</ul>
 	</li>
-	<li><a href="#DocModuleDepend">Module dependencies</a></li>
-	<li><a href="#DocCustomModule">Custom module methods</a></li>
+	<li><a href="#DocModuleDepend">Dépendances inter modules</a></li>
+	<li><a href="#DocCustomModule">Méthodes personnalisées des modules</a></li>
 </ul>
 
-<h3 id="DocIntroModules">Introduction to modules</h3>
-<p>ASP.NET Boilerplate provides an infrastructure to build modules and compose 
-them to create an application. A module can depend on another module. Generally, an assembly is considered 
-as a module. A 
-module is defined with a class that is derived from <strong>AbpModule</strong>. 
-Say that we're developing a Blog module that can be used in different 
-applications. Simplest module definition can be as shown below:</p>
+<h3 id="DocIntroModules">Introduction aux modules</h3>
+<p>ASP.NET Boilerplate fournit une infrastructure pour concevoir des modules et pour les assembler afin de de créer une application. Un module peut dépendre d&#39;un autre module. Généralement, un assembly est considéré comme un module. Un module est une classe qui hérite de <strong>AbpModule</strong>. 
+    Imaginons que nous développons un module de type &quot;blog&quot; qui pourrait être utilisé dans différentes applications. La définition la plus simple de ce module pourrait être tel que présenté ci-dessous:</p>
 <pre lang="cs">public class MyBlogApplicationModule : AbpModule
 {
     public override void Initialize()
@@ -36,39 +32,22 @@ applications. Simplest module definition can be as shown below:</p>
         IocManager.RegisterAssemblyByConvention(Assembly.GetExecutingAssembly());
     }
 }</pre>
-<p>ASP.NET Boilerplate scans all assemblies and finds all classes those are 
-devired from AbpModule class. If you created an application with more than one 
-assembly, it's suggested to create a module definition for each assembly.</p>
-<h3 id="DocModuleLifecycleEvents">Lifecycle events</h3>
-<p>ASP.NET Boilerplate calls some specific methods of modules on application 
-startup and shutdown. You can override these methods to perform some specific 
-tasks.</p>
-<p>ASP.NET Boilerplate calls these methods <strong>ordered by dependecies</strong>. If module A depends on module B, module B is initialized before module A. Exact order of 
-startup methods: PreInitialize-B, PreInitialize-A, Initialize-B, Initialize-A, PostInitialize-B and PostInitialize-A. This is true for all dependency graph. 
-Shutdown method is also similar but in reverse order.</p>
-<h4 id="DocModulePreInit">PreInitialize</h4>
-<p>This method is called first when application starts. You can write some 
-specific code here to run before dependency injection registrations. For 
-example, if you create a conventional registration class, you should register it 
-here (using IocManager.AddConventionalRegisterer method). You can 
-register to events of IOC container.. so on.</p>
-<h4 id="DocModuleInit">Initialize</h4>
-<p>It's the usual place where
-<a href="/Pages/Documents/Dependency-Injection">dependency injection</a> 
-registration should be done. It's generally done using IocManager.RegisterAssemblyByConvention method. 
-If you want to define custom dependency registration, see dependency injection 
-documentation.</p>
-<h4 id="DocModulePostInit">PostInitialize</h4>
+<p>ASP.NET Boilerplate parcourt toutes les librairies et trouve toutes les classes qui hérite de la classe AbpModule. Si vous créez une application avec plus d&#39;un assembly, il est conseillé de creer une définition de module pour chaque assembly.</p>
+<h3 id="DocModuleLifecycleEvents">Cycle de vie des évènements</h3>
+<p>ASP.NET Boilerplate fait appel à certaines méthodes spécifiques contenues dans les modules au démarrage de l&#39;application et à sa fermeture. Vous pouvez surcharger ces méthodes pour effectuer certaines tâches spécifiques.</p>
+<p>ASP.NET Boilerplate déclenche ces méthodes selon l&#39;ordre des dépendances. Si un module A dépend d&#39;un module B, le module B est initialisé en premier. L&#39;ordre précis de déclenchement des méthodes est le suivant: Pre-Initialisation-B, Pre-Initialisation-A, Initialisation-B, Initialisation-A, Post-Initialisation-B and Post-Initialisation-A. Cela s&#39;applique à tous les graphes de dépendances. La méthode de fermeture suit la même séquence mais dans le sens contraire.</p>
+<h4 id="DocModulePreInit">Pre-Initialisation</h4>
+<p>Cette méthode est appelé en premier lorsque l&#39;application démarre. Vous pouvez écrire du code spécifique à cet endroit&nbsp; pour qu&#39;il s&#39;exécute avant le chargement des règles d&#39;Injection de Dépendance. Par exemple, si vous voulez créer une classe de paramétrage intial, vous pourriez la définir ici. (en utilisant la méthode IocManager.AddConventionalRegisterer method). Vous pouvez donc vous abonner à des évènements du conteneur d&#39;Injection de Dépendance.</p>
+<h4 id="DocModuleInit">Initialisation</h4>
+<p>C&#39;est la meilleure place pour définir les règles de l&#39;<a href="/Pages/Documents/Dependency-Injection">Injection de Dépendance</a>. Le moyen généralement utilisé et l&#39;appel à la méthode IocManager.RegisterAssemblyByConvention. Si vous voulez définir un paramétrage particulier au niveau des dépendances, reportez vous à la documentation correspondante.</p>
+<h4 id="DocModulePostInit">Post-Initialisation</h4>
 
-<p>This method is called lastly in startup progress. It's safe to resolve a 
-dependency here.</p>
-<h4 id="DocModuleShutdown">Shutdown</h4>
-<p>This method is called when the application shuts down.</p>
-<h3 id="DocModuleDepend">Module dependencies</h3>
+<p>Cette méthode est appelée plus tard pendant la phase de démarrage de l&#39;application. L&#39;appel à une dépendance est sans danger à ce stade.</p>
+<h4 id="DocModuleShutdown">Fermeture</h4>
+<p>Cette méthode est appelée lorsque l&#39;application se ferme.</p>
+<h3 id="DocModuleDepend">Dépendances des modules</h3>
 
-<p>A module can be dependent to another. ASP.NET Boilerplate tries to resolve 
-these dependencies automatically. But it's suggested to explicitly declare dependencies 
-using DependsOn attribute like below:</p>
+<p>Un module peut dépendre d&#39;un autre. ASP.NET Boilerplate tente de résoudre automatiquement ces dépendances. Il est tout de même conseillé de les déclarer explicitement en utilisant l&#39;attribut DependsOn comme indiqué ci-dessous:</p>
 <pre lang="cs">[DependsOn(typeof(MyBlogCoreModule))]
 public class MyBlogApplicationModule : AbpModule
 {
@@ -77,13 +56,9 @@ public class MyBlogApplicationModule : AbpModule
         IocManager.RegisterAssemblyByConvention(Assembly.GetExecutingAssembly());
     }
 }</pre>
-<p>Thus, we declare to ASP.NET Boilerplate that MyBlogApplicationModule is 
-depended to MyBlogCoreModule and the core module should be initialized before 
-the application module.</p>
-<h3 id="DocCustomModule">Custom module methods</h3>
-<p>Your modules also can have custom methods those can be used by other modules 
-depend on this module. Assume that MyModule2 depends on MyModule1 and wants to 
-call a method of MyModule1 in PreInitialize event.</p>
+<p>Par ce biais, nous déclarons à ASP.NET Boilerplate que MyBlogApplicationModule est dépendant de MyBlogCoreModule et que le module principale (core) doit être initialisé avant le module applicatif.</p>
+<h3 id="DocCustomModule">Méthodes personnalisées des modules</h3>
+<p>Vos modules peuvent aussi comporter des méthodes personnalisées qui seront utilisées par les modules dépendants. Imaginons que MyModule2 dépend de MyModule1 et veut appeler la méthode de MyModule1 lors de l&#39;évènement PreInitialize.</p>
 
 <pre lang="cs">public class MyModule1 : AbpModule
 {
@@ -119,8 +94,8 @@ public class MyModule2 : AbpModule
     }
 }</pre>
 
-<p>Here, we constructor-injected MyModule1 to MyModule2, so MyModule2 can call 
-MyModule1's custom method.</p>
+<p>Ici, nous avons injecté, par constructeur, MyModule1 à MyModule2, donc MyModule2 peut appeller la méthode personnalisée de 
+MyModule1's.</p>
 
 </body>
 
