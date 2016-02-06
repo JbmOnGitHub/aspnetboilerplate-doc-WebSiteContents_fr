@@ -10,18 +10,16 @@
 <body>
 
 <ul>
-	<li><a href="#DocConfigureAbp">Configuring ASP.NET Boilerplate</a></li>
-	<li><a href="#DocConfigureModules">Configuring Modules</a></li>
-	<li><a href="#DocCreateModuleConfig">Creating configuration for a module</a></li>
+	<li><a href="#DocConfigureAbp">Configuration d&#39;ASP.NET Boilerplate</a></li>
+	<li><a href="#DocConfigureModules">Configuration des Modules</a></li>
+	<li><a href="#DocCreateModuleConfig">Création de configuration d&#39;un module</a></li>
 </ul>
 
 
-<p>ASP.NET Boilerplate provides an infrastructure to configure it and
-<a href="/Pages/Documents/Module-System">modules</a> on startup.</p>
+<p>ASP.NET Boilerplate fournit une infrastructure pour sa configuration et celles des <a href="/Pages/Documents/Module-System">modules</a> au démarrage..</p>
 
-<h3 id="DocConfigureAbp">Configuring ASP.NET Boilerplate</h3>
-<p>Configuring ASP.NET Boilerplate is made on <strong>PreInitialize</strong> event of your 
-module. Example configuration:</p>
+<h3 id="DocConfigureAbp">Configuration d&#39;ASP.NET Boilerplate</h3>
+<p>La configuration d&#39;ASP.NET Boilerplate est faite lors de l&#39;évènement <strong>PreInitialize</strong> de votre module. Exemple de configuration:</p>
 <pre lang="cs">public class SimpleTaskSystemModule : AbpModule
 {
     public override void PreInitialize()
@@ -47,17 +45,12 @@ module. Example configuration:</p>
         IocManager.RegisterAssemblyByConvention(Assembly.GetExecutingAssembly());
     }
 }</pre>
-<p>ASP.NET Boilerplate is designed <strong>modularity</strong> in mind. Different modules can 
-configure ASP.NET Boilerplate. For example, different modules can add navigation 
-provider to add their own menu items to the main menu. See
-<a href="/Pages/Documents/Localization">localization</a> and
-<a href="/Pages/Documents/Navigation">navigation</a> documents for details.</p>
+<p>ASP.NET Boilerplate est conçu dans un esprit modulaire. Différents modules peuvent configurer ASP.NET Boilerplate. Par exemple, des modules peuvent ajouter un composant de navigation de ses propres items vers le menu principal. Regadez bien les documents <a href="/Pages/Documents/Localization">localization</a> et
+<a href="/Pages/Documents/Navigation">navigation</a> sur ce sujet.</p>
 
-<h3 id="DocConfigureModules">Configuring Modules</h3>
+<h3 id="DocConfigureModules">Configuration des Modules</h3>
 
-<p>Beside framework's own startup configuration, a module can extend 
-<strong>IAbpModuleConfigurations</strong> interface to provide configuration points for the module. 
-Example:</p>
+<p>A l&#39;instar de de la configuration au démarrage propre au framework, un module peut implémenter l&#39;interface <strong>IAbpModuleConfigurations</strong> pour fournir des éléments de configuration au module. Exemple:</p>
 <pre>...
 using Abp.Web.Configuration;
 ...
@@ -66,25 +59,19 @@ public override void PreInitialize()
     Configuration.Modules.AbpWeb().SendAllExceptionsToClients = true;
 }
 ...</pre>
-<p>In this example, we configured AbpWeb module to send all exceptions to 
-clients.</p>
-<p>Not every module should define this type of configuration. It's generally needed when a 
-module will be re-usable in different applications and needs to be configured on 
-startup.</p>
-<h3 id="DocCreateModuleConfig">Creating configuration for a module</h3>
-<p>Assume that we have a module named MyModule and it has some configuration 
-properties. First, we create a class for these cofigurable properties:</p>
+<p>Dans cet exemple, nous avons configuré le module AbpWeb pour envoyer toutes les exceptions aux clients.</p>
+<p>Tous les modules ne devraient pas définir ce type de configuration. C&#39;est généralement nécessaire lors qu&#39;un module sera ré-utilisé dans différentes applications et a besoin d&#39;être configué au démarrage.</p>
+<h3 id="DocCreateModuleConfig">Création de la configuration d&#39;un module</h3>
+<p>Admettons que nous avons un module &quot;MyModule&quot; et qu&#39;il dispose de quelques propriété de configuration. D&#39;abord, nous créons une classe présentant ces propriétés de configuration:</p>
 <pre lang="cs">public class MyModuleConfig
 {
     public bool SampleConfig1 { get; set; }
 
     public string SampleConfig2 { get; set; }
 }</pre>
-<p>Then we register this class to DI on PreInitialize event of MyModule (Thus, 
-it will be injectable):</p>
+<p>Ensuite nous enregistrons cette classe au niveau de l&#39;Injecteur de Dépendance lors de l&#39;évènement PreInitialize de &quot;MyModule&quot; (De ce fait, il sera donc injectable):</p>
 <pre lang="cs">IocManager.Register&lt;MyModuleConfig&gt;();</pre>
-<p>Finally, we create an extension method to IModuleConfigurations to get a 
-reference to the MyConfig:</p>
+<p>Pour finir, nous créons une méthode d&#39;extension à IModuleConfigurations pour obtenir une référence à MyConfig:</p>
 <pre lang="cs">public static class MyModuleConfigurationExtensions
 {
     public static MyModuleConfig MyModule(this IModuleConfigurations moduleConfigurations)
@@ -95,12 +82,11 @@ reference to the MyConfig:</p>
             );
     }
 }</pre>
-<p>Now, other modules can configure this module on startup (on PreInitialize 
-event of the module which need to configure MyModule):</p>
+<p>Maintenant, les autres modules peuvent configurer ce module au démarrage (lors de l&#39;évènement PreInitialize 
+    du module qui sera nécessaire pour configurer MyModule):</p>
 <pre lang="cs">Configuration.Modules.MyModule().SampleConfig1 = false;
 Configuration.Modules.MyModule().SampleConfig2 = &quot;test&quot;;</pre>
-<p>At some point, MyModule needs to this configuration. You can inject 
-MyModuleConfig and use configured values. Example:</p>
+<p>Pour certains aspects, MyModule a besoin de cette configuration. Vous pouvez alors injecter MyModuleConfig et utiliser la configuration qui a été paramétrée. Exemple:</p>
 <pre lang="cs">public class MyService : ITransientDependency
 {
     private readonly MyModuleConfig _configuration;
@@ -119,8 +105,7 @@ MyModuleConfig and use configured values. Example:</p>
     }
 }</pre>
 
-<p>Thus, modules can create central configuration points in ASP.NET Boilerplate 
-system.</p>
+<p>De cette manière, les modules peuvent créer des points de paramétrage centraux dans le système ASP.NET Boilerplate.</p>
 
 </body>
 
