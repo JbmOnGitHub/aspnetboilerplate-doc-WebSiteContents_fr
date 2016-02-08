@@ -10,54 +10,43 @@
 <body>
 
 <ul>
-	<li><a href="#DocWhatIsDI">What is Dependency Injection</a>
-	<ul>
-		<li><a href="#DocProblems">Problems of traditional way</a></li>
+	<li><a href="#DocWhatIsDI">Qu&#39;est-ce que l&#39;Injection de Dépendance</a><ul>
+		<li><a href="#DocProblems">Problèmes courants</a></li>
 		<li><a href="#DocSolutions">Solution</a><ul>
-			<li><a href="#DocConstructorInjection">Constructor injection</a></li>
-			<li><a href="#DocPropertyInjection">Property injection</a></li>
+			<li><a href="#DocConstructorInjection">Injection de Constructeur</a></li>
+			<li><a href="#DocPropertyInjection">Injection de Propriétés</a></li>
 		</ul>
 		</li>
-		<li><a href="#DocDIFrameworks">Dependency Injection frameworks</a></li>
+		<li><a href="#DocDIFrameworks">Frameworks d&#39;Injection de Dépendances</a></li>
 	</ul>
 	</li>
-	<li><a href="#DocAbpInfrastructure">ASP.NET Boilerplate Dependency Injection infrastructure</a><ul>
-		<li><a href="#DocRegisterDependencies">Registering</a><ul>
-			<li><a href="#DocConventionalRegister">Conventional registrations</a></li>
-			<li><a href="#DocHelperInterfaces">Helper interfaces</a></li>
-			<li><a href="#DocCustomRegistration">Custom/Direct registration</a></li>
+	<li><a href="#DocAbpInfrastructure">ASP.NET Boilerplate: son infrastructure d&#39;Injection de Dépendance</a><ul>
+		<li><a href="#DocRegisterDependencies">Paramétrage</a><ul>
+			<li><a href="#DocConventionalRegister">Paramétrages par conventions</a></li>
+			<li><a href="#DocHelperInterfaces">Interfaces Helper</a></li>
+			<li><a href="#DocCustomRegistration">Enregistrement Personnalisé/Direct</a></li>
 		</ul>
 		</li>
-		<li><a href="#DocResolvingDependencies">Resolving</a><ul>
-			<li><a href="#DocResolveConstAndProp">Constructor &amp; Property Injection</a></li>
-			<li><a href="#DocIocHelper">IIocResolver and IIocManager</a></li>
+		<li><a href="#DocResolvingDependencies">Résolution</a><ul>
+			<li><a href="#DocResolveConstAndProp">Injection de Constructeurs et de Propriétés</a></li>
+			<li><a href="#DocIocHelper">IIocResolver et IIocManager</a></li>
 		</ul>
 		</li>
 		<li><a href="#DocExtras">Extras</a><ul>
-			<li><a href="#DocIShouldInitialize">IShouldInitialize interface</a></li>
+			<li><a href="#DocIShouldInitialize">L&#39;interface IShouldInitialize</a></li>
 		</ul>
 		</li>
-		<li><a href="#DocMvcAndWebApiIntegration">ASP.NET MVC &amp; ASP.NET Web API integration</a></li>
-		<li><a href="#DocLastNotes">Last notes</a></li>
+		<li><a href="#DocMvcAndWebApiIntegration">ASP.NET MVC &amp; ASP.NET Web API : Intégration</a></li>
+		<li><a href="#DocLastNotes">Dernières indications</a></li>
 	</ul>
 	</li>
 </ul>
-<h3 id="DocWhatIsDI">What is Dependency Injection</h3>
-<p>If you already know Dependency Injection concept, Constructor and Property 
-Injection patterns, you can skip to the <a href="#DocAbpInfrastructure">next section</a>.</p>
-<p>Wikipedia says: "<em>Dependency injection is a software design pattern in which one or more dependencies (or services) are injected, or passed by reference, 
-into a dependent object (or client) and are made part of the client's state. The pattern separates the creation of a client's dependencies from its own behavior,
-which allows program designs to be loosely coupled and to follow the dependency inversion and single responsibility principles. It directly contrasts the
-service locator pattern, which allows clients to know about the system they use to find dependencies.</em>".</p>
-<p>It's very hard to manage dependencies and develop a modular and well 
-structured application without using dependency injection techniques.</p>
-<h4 id="DocProblems">Problems of traditional way</h4>
-<p>In an application, classes depend on each other. Assume that we have an
-<a href="/Pages/Documents/Application-Services">application service</a> that 
-uses a <a href="/Pages/Documents/Entities">repository</a> to insert
-<a href="/Pages/Documents/Entities">entities</a> to database. In this 
-situation, the application service class is dependent to the repository class. 
-See the example:</p>
+<h3 id="DocWhatIsDI">Qu&#39;est-ce que l&#39;Injection de Dépendances</h3>
+<p>Si vous connaissez déjà le concept d&#39;Injection de Dépendances, les modèles d&#39;Injection de Constructeur et de Propriétés, vous pouvez sauter cette section et passer à la <a href="#DocAbpInfrastructure">suivante</a>.</p>
+<p>Extrait de Wikipedia: "<em>L&#39;Injection de Dépendance est un modèle de conception dans lequel une ou plusieurs dépendances (ou services) sont injectées, ou passées par référence, dans un objet dépendant (ou client) et qui sont une partie de l&#39;état du client. Ce pattern sépare la création de la dépendance du client de son comportement ce qui permet au programme d&#39;être faiblement couplé, d&#39;inverser la dépendance et de respecter les principes de responsabilité isolée. Cela constraste directement avec le modèle de localisation de service, qui permet aux clients de connaitre le système qu&#39;ils utilisent pour résoudre les dépendances.</em>&quot;</p>
+<p>Il est vraiment difficile de gérer les dépendances et de développer de façon modulaire et bien structurée sans avoir à recourir aux techniques d&#39;injection de dépendances.</p>
+<h4 id="DocProblems">Problèmes courants</h4>
+<p>Dans une application, les classes dépendent les unes des autres. Imaginons que nous avons un <a href="/Pages/Documents/Application-Services">service applicatif</a> qui utilise un <a href="/Pages/Documents/Entities">entrepôt</a> pour insérer des <a href="/Pages/Documents/Entities">entités</a> en base de données. Dans cette situation, la classe du service applicatif est dépendante de celle de l&#39;entrepôt. Voyez cet exemple:</p>
 <pre lang="cs">public class PersonAppService
 {
     private IPersonRepository _personRepository;
@@ -74,31 +63,17 @@ See the example:</p>
     }
 }
 </pre>
-<p><strong>PersonAppService</strong> uses <strong>PersonRepository</strong> to 
-insert a <strong>Person</strong> to the database. Problems of this code:</p>
+<p><strong>PersonAppService</strong> utilise <strong>PersonRepository</strong> pour insérer une <strong>Personne</strong> en base de données. Ce code comporte des problèmes:</p>
 <ul>
-	<li>PersonAppService uses <strong>IPersonRepository</strong> reference in
-	<strong>CreatePerson</strong> method, so this method depends on 
-	IPersonRepository, instead of PersonRepository concrete class. But the 
-	PersonAppService still depends on PersonRepository in it's constructor. 
-	Components should depend on interfaces rather than implementation. This is 
-	known as Dependency Inversion principle. </li>
-	<li>If the PersonAppService creates the PersonRepository itself, it become 
-	dependent to a specific implementation of IPersonRepository interface and 
-	can not work with another implementation. Thus, separating interface from 
-	implementation becomes meaningless. Hard-dependencies makes code base 
-	tightly coupled and low re-usable.</li>
-	<li>We may need to change creation of PersonRepository in the future. Say, 
-	we may want to make it singleton (single shared instance rather than 
-	creating an object for each usage). Or we may want to create more than one 
-	class those implement IPersonRepository and we want to create one of them 
-	conditionally. In this situation, we should change all classes that depends 
-	on IPersonRepository.</li>
-	<li>With such a dependency, it's very hard (or impossible) to unit test the 
-	PersonAppService.</li>
+	<li>PersonAppService utilise une référence à <strong>IPersonRepository</strong> dans la méthode
+	<strong>CreatePerson</strong>, donc cette méthode dépend de IPersonRepository au lieu d&#39;une référence concrête à la classe PersonRepository. Mais 
+	PersonAppService dépend aussi de PersonRepository au niveau de son constructeur. 
+	    Les composants devraient dépendre de leurs interfaces plutôt que de leurs implémentations concrêtes. Cela amène au principe d&#39;Inversion de Dépendance. </li>
+	<li>Si PersonAppService crée lui même PersonRepository, il devient dépendant d&#39;une implémentation spécifique de IPersonRepository et ne peut plus travailler avec d&#39;autres implémentations. La séparation des interfaces de leurs implémentations devient donc factice. La dépendance forte dans un code source le rend faiblement réutilisable.</li>
+	<li>A l&#39;avenir, nous pourrions décider de modifier PersonRepository et d&#39;en faire un singleton. (ce qui est mieux que de devoir ré instancier un objet à chaque usage) Nous pourrions implémenter aussi plusieurs classes à partir de IPersonRepository et utiliser l&#39;une ou l&#39;autre de manière conditionnelle. Dans cette situation, nous devrions changer toutes les classes qui dépendent de IPersonRepository.</li>
+	<li>Avec un tel niveau de couplage, il est très difficile ( voire impossible) de tester PersonAppService unitairement.</li>
 </ul>
-<p>To overcome some of these problems, factory pattern can be used. Thus, creation 
-of repository class is abstracted. See the code below:</p>
+<p>Pour résoudre certains de ces problèmes, des modèles de conception peuvent être appliqués. Pour cette raison, la création de la classe entrepôt est abstraite. Voyez plutôt:</p>
 <pre lang="cs">public class PersonAppService
 {
     private IPersonRepository _personRepository;
@@ -116,22 +91,17 @@ of repository class is abstracted. See the code below:</p>
 }
 </pre>
 
-<p>PersonRepositoryFactory is a static class that creates and returns an 
-IPersonRepository. This is known as <strong>Service Locator</strong> pattern. Creation problems are solved since PersonAppService does not 
-know how to create an implementation of IPersonRepository and it's independent 
-from PersonRepository implementation. But,still there are some problems:</p>
+<p>PersonRepositoryFactory est une classe statique chargée de créer et de retourner une instance IPersonRepository. C&#39;est un modèle de conception appelé &quot;<strong>Service Locator&quot;</strong>. Les problèmes de création sont résolus puisque PersonAppService ne s&#39;occupe plus d&#39;instancier une implémentation spécifique de IPersonRepository et elle est indépendante de l&#39;implémentation de PersonRepository. Cependant, il reste quelques problèmes:</p>
 <ul>
-	<li>In this time, PersonAppService depends on PersonRepositoryFactory. This 
-	is more acceptable but still there is a hard-dependency.</li>
-	<li>It's tedious to write a factory class/method for each repository or for 
-	each dependency.</li>
-	<li>It's not well testable again, since it's hard to make PersonAppService 
-	to use some mock implementation of IPersonRepository.</li>
+	<li>Cette fois, PersonAppService dépend de PersonRepositoryFactory. C&#39;est plus acceptable mais cela reste une dépendance forte.</li>
+	<li>C&#39;est fastidieux d&#39;écrire une classe et des méthodes de type Factory pour chaque entrepôt ou chaque dépendance.</li>
+	<li>Cela empêche de bien tester car il est difficile de faire en sorte que PersonAppService 
+	    puisse utiliser une pseudo implémentation de IPersonRepository.</li>
 </ul>
 <h4 id="DocSolution">Solution</h4>
-<p>There are some best practices (patterns) to depend on other classes.</p>
-<h4 id="DocConstructorInjection">Constructor Injection pattern</h4>
-<p>The example above can be re-written as shown below:</p>
+<p>Il existe d&#39;autres méthodes (patterns) qui permettent d&#39;obtenir de la dépendance d&#39;une meilleure manière.</p>
+<h4 id="DocConstructorInjection">Pattern d&#39;Injection de Constructeur</h4>
+<p>Le précédent exemple pourrait être ré écrit de la manière suivante:</p>
 <pre lang="cs">public class PersonAppService
 {
     private IPersonRepository _personRepository;
@@ -149,38 +119,23 @@ from PersonRepository implementation. But,still there are some problems:</p>
 }
 </pre>
 
-<p>This is known as <strong>constructor injection</strong>. Now, 
-PersonAppService does not know which classes implement IPersonRepository and how 
-to create it. Who needs to use PersonAppService, first creates an 
-IPersonRepository and pass it to constructor of PersonAppService as shown below:</p>
+<p>Cela s&#39;appelle de <strong>injection de dépendance</strong>. Maintenant, 
+PersonAppService n&#39;a aucune connaissance de quelles classes implémenteront IPersonRepository et comment l&#39;instance sera créée. Pour utiliser PersonAppService, il faudra d&#39;abord créer une instance de 
+IPersonRepository et la passer au constructeur, comme illustré ci-dessous:</p>
 <pre lang="cs">var repository = new PersonRepository();
 var personService = new PersonAppService(repository);
 personService.CreatePerson("Yunus Emre", 19);</pre>
-<p>Constructor Injection is a perfect way of making a class independent to 
-creation of dependent objects. But, there are some problems with the code above:</p>
+<p>L&#39;injection de Constructeur est une manière idéale pour rendre une classe indépendante du méchanisme de création de ses objets dépendants. Mais il reste certains problèmes:</p>
 <ul>
-	<li>Creating a PersonAppService become harder. Think that it has 4 
-	dependency, we must create these 4 dependent object and pass them into the 
-	constructor of the PersonAppService.</li>
-	<li>Dependent classes may have other dependencies (Here, PersonRepository 
-	may has dependencies). So, we must create all dependencies of 
-	PersonAppService, all dependencies of dependencies and so on.. In that way, 
-	we may not even create a single object since dependency graph is too 
-	complex.</li>
+	<li>La création de PersonAppService peut devenir complexe. Imaginez que cette classe utilise 4 dépendances, nous devrions créer ces 4 objets dépendants pour les passer au constructeur de PersonAppService.</li>
+	<li>Les classes dépendantes pourraient avoir à leur tour d&#39;autres dépendances. (Ici, PersonRepository 
+	    pourrait avoir plusieurs dépendances). Nous devrions alors créer en amont toutes les dépendances et sous dépendances de 
+	PersonAppService et ainsi de suite... De cette façon, nous ne pouvons pas créer un seul objet facilement en raison de la complexité de l&#39;arbre de dépendances.</li>
 </ul>
-<p>Fortunately, there are <a href="#DocDIFrameworks">Dependency Injection 
-frameworks</a> automates to manage dependencies.</p>
-<h4 id="DocPropertyInjection">Property Injection pattern</h4>
-<p>Constructor injection pattern is a perfect way of providing dependencies of a 
-class. In this way, you can not create an instance of the class without 
-supplying dependencies. It's also a strong way of explicitly declaring what's 
-the requirements of the class to properly work.</p>
-<p>But, in some situations, the class depends on another class but also can work 
-without it. This is usually true for cross-cutting concerns such as logging. A 
-class can work without logging, but it can write logs if you supply a logger. In 
-this case, you can define dependencies as public properties rather than getting 
-them in constructor. Think that we want to write logs in PersonAppService. We 
-can re-write the class as like below:</p>
+<p>Fort heureusement, il existe des <a href="#DocDIFrameworks">Framework d&#39;Injection de Dépendance</a> qui aident à résoudre ces problématiques.</p>
+<h4 id="DocPropertyInjection">Injections de Propriétés</h4>
+<p>L&#39;injection de Constructeur est un pattern adapté à la mise à disposition de dépendances à une classe. De cette façon, il est impossible de créer une instance de la classe sans s&#39;occuper des dépendances. C&#39;est donc une bonne manière d&#39;indiquer explicitement les prérequis attendus par une classe pour fonctionner correctement.</p>
+<p>Mais, dans certains cas, il est possible qu&#39;une classe ayant une dépendance avec une autre pourrait quand même fonctionner sans cette dépendance. C&#39;est généralement vrai dans le cas du &quot;débranchage&quot; (cross-cutting) comme la journalisation d&#39;évènements (logging). Une classe pourrait tout à fait fonctionner sans logging, mais elle pourrait écrire les logs lorsque l&#39;on ajoute un logger. Dans ce cas, il vaut mieux définir la dépendance comme un propriété publique plutôt que de l&#39;incorporer dans un constructeur. Imaginons que nous voulons écrire des logs dans&nbsp; PersonAppService. Nous pouvons modifier le code comme cela:</p>
 <pre lang="cs">public class PersonAppService
 {
     public ILogger Logger { get; set; }
@@ -201,36 +156,21 @@ can re-write the class as like below:</p>
         Logger.Debug("Successfully inserted!");
     }
 }</pre>
-<p>NullLogger.Instance is a singleton object that implements ILogger but 
-actually does nothing (does not write logs. It implements ILogger with empty 
-method bodies). So, now, PersonAppService can write logs if you set Logger after 
-creating the PersonAppService object like below:</p>
+<p>NullLogger.Instance est un objet singleton qui implémente ILogger mais ne produit aucune action, pour le moment. (il ne permet pas d&#39;écrire des logs. Il implémente ILogger avec un corps de méthode vide). Donc, maintenant, PersonAppService peut écrire des logs si vous affectez une instance à Logger après avoir créé l&#39;objet PersonAppService comme illustré ci-dessous:</p>
 <pre lang="cs">var personService = new PersonAppService(new PersonRepository());
 personService.Logger = new Log4NetLogger();
 personService.CreatePerson("Yunus Emre", 19);</pre>
-<p>Assume that Log4NetLogger implements ILogger and write logs using Log4Net 
-library. Thus, PersonAppService can actually write logs. If we do not set 
-Logger, it does not write logs. So, we can say the ILogger is an <strong>
-optional dependency </strong>of PersonAppService.</p>
+<p>En partant du principe que Log4NetLogger implémente ILogger pour écrire les logs en utilisant la librairie Log4Net, PersonAppService est maintenant capable d&#39;écrire des logs. Si on ne définit pas Logger, aucun log ne sera produit. On peut donc dire que ILogger est une <strong>
+    dépendance optionnelle</strong> de PersonAppService.</p>
 
-<p>Almost all of Dependency Injection frameworks support Property Injection 
-pattern.</p>
-<h4 id="DocDIFrameworks">Dependency Injection frameworks</h4>
-<p>There are many dependency injection framework that automates resolving 
-dependencies. They can create objects with all dependencies (and dependencies of 
-dependencies recursively). So, you just write your class with constructor &amp; 
-property injection patterns, DI framework handles the rest! In a good 
-application, your classes are independent even from DI framework. There will be 
-a few lines of code or classes that explicitly interact with DI framework in 
-your whole application.</p>
-<p>ASP.NET Boilerplate uses <a href="http://docs.castleproject.org/Default.aspx?Page=MainPage">Castle 
-Windsor</a>  framework for Dependency Injection. It's one of the most mature DI 
-frameworks. There are many other frameworks like Unity, Ninject, StructureMap, 
-Autofac and so on.</p>
-<p>In a dependency injection framework, you first register your 
-interfaces/classes to the dependency injection framework, then you can resolve 
-(create) an object. In Castle Windsor, 
-it's something like that:</p>
+<p>La plupart des Framework d&#39;Injection de Dépendance supportent l&#39;Injection de Propriétés.</p>
+<h4 id="DocDIFrameworks">Les Frameworks d&#39;Injection de Dépendances</h4>
+<p>Il existe de multiples framework d&#39;Injection de Dépendance qui automatisent la résolution de dépendances. Ils peuvent créer les objets avec toutes les dépendances (et sous dépendances, récursivement). Il suffit donc d&#39;écrire sa classe en respectant le modèle d&#39;Injection de constructeurs et de propriétés, le framework s&#39;occupe du reste! Dans une bonne application, vos classes sont également indépendantes du framework d&#39;Injection de Dépendance. Il y aura une faible portion de code qui définira explicitement le cadre d&#39;interraction entre le framework d&#39;Injection de Dépendance et le reste de l&#39;application.</p>
+<p>ASP.NET Boilerplate utilise <a href="http://docs.castleproject.org/Default.aspx?Page=MainPage">Castle 
+Windsor</a>. C&#39;est l&#39;un des framework d&#39;Injection de Dépendance les plus matures. Il y en existe d&#39;autres comme Unity, Ninject, StructureMap, 
+Autofac...</p>
+<p>Dans ce type de framework, il faut d&#39;abord enregistrer vos interfaces/classes dans le framework d&#39;Injection de Dépendance, ensuite la dépendance sera résolue et l&#39;instance créée. Avec Castle Windsor, 
+    cela se passe de cette manière:</p>
 <pre>var container = new WindsorContainer();
 
 container.Register(
@@ -240,36 +180,20 @@ container.Register(
 
 var personService = container.Resolve&lt;IPersonAppService&gt;();
 personService.CreatePerson(&quot;Yunus Emre&quot;, 19);</pre>
-<p>We first created the <strong>WindsorContainer</strong>. then <strong>
-registered </strong>PersonRepository and PersonAppService with their interfaces. 
-Then we asked to container to create an IPersonAppService. It created 
-PersonAppService with dependencies and returned back. Maybe it's not so clear of 
-advantage of using a DI framework in this simple example, but think you will 
-have many classes and dependencies in a real enterprise application. Surely, 
-registering dependencies will be somewhere else from creation and using objects 
-and made only one time in an application startup.</p>
-<p>Notice that we also declared <strong>life cycle </strong>of objects as
-<strong>transient</strong>. That means whenever we resolves an object of these 
-types, a new instance will be created. There are many different life cycles 
-(like <strong>singletion</strong>).</p>
-<h3 id="DocAbpInfrastructure">ASP.NET Boilerplate Dependency Injection infrastructure</h3>
-<p>ASP.NET Boilerplate almost makes invisible of using the dependency injection 
-framework when you write your application by following best practices and some 
-conventions.</p>
-<h4 id="DocRegisterDependencies">Registering</h4>
-<p>There are different ways of registering your classes to Dependency Injection 
-system in ASP.NET Boilerplate. Most of time, conventional registration will be 
-sufficient.</p>
-<h4 id="DocConventionalRegister">Conventional registrations</h4>
+<p>Nous avons créé le conteneur <strong>WindsorContaine</strong>, ensuite nous avons procédé à <strong>
+    l&#39;enregistrement </strong>&nbsp;de PersonRepository et de PersonAppService selon ces interfaces. 
+    Ensuite nous avons demandé au conteneur de résoudre IPersonAppService. PersonAppService a été créé avec ses dépendances et retourné. Peut être que l&#39;avantage d&#39;utiliser un framework de résolution de dépendances n&#39;apparait pas clairement ici, mais rappelez vous que nous pourrions avec de nombreuses classes à résoudre dans une application d&#39;entreprise. Bien entendu, l&#39;enregistrement des dépendances devra être placé au bon endroit pour que les créations de ces objets soient réalisées une seule fois, au démarrage de l&#39;application.</p>
+<p>Vous avez remarqué que nous avons dû aussi indiquer le <strong>cycle de vie</strong> comme <strong>transient</strong>. Cela signifie qu&#39;à chaque résolution des objets mentionnés, une nouvelle instance sera créée. Il existe plusieurs cycles de vie (comme le <strong>singleton</strong>).</p>
+<h3 id="DocAbpInfrastructure">ASP.NET Boilerplate : Son infrastructure d&#39;Injection de Dépendances</h3>
+<p>ASP.NET Boilerplate rend pratiquement invisible l&#39;usage du framework d&#39;Injection de Dépendances ; il suffit de respecter quelques bonnes pratiques et conventions lorsque vous écrivez votre application.</p>
+<h4 id="DocRegisterDependencies">Enregistrement</h4>
+<p>Il y a différentes façon d&#39;enregistrer vos classes au niveau du framework d&#39;Injection de Dépendances mis en oeuvre par ASP.NET Boilerplate. La plupart du temps, l&#39;enregistrement par convention sera suffisant.</p>
+<h4 id="DocConventionalRegister">L&#39;enregistrement par Convention</h4>
 
-<p>ASP.NET Boilerplate automatically registers all
-<a href="/Pages/Documents/Repositories">Repositories</a>, 
-<a href="/Pages/Documents/Domain-Services">Domain Services</a>,
-<a href="/Pages/Documents/Application-Services">Application Services</a>, MVC 
-Controllers and Web API Controllers 
-by 
-convention. For example, you may have a IPersonAppService interface and a PersonAppService 
-class that implements it:</p>
+<p>ASP.NET Boilerplate enregistre automatiquement tous les <a href="/Pages/Documents/Repositories">Entrepôts</a>, 
+<a href="/Pages/Documents/Domain-Services">Services du domaine</a>,
+<a href="/Pages/Documents/Application-Services">Services Applicatifs</a>, Controleurs MVC et Controleurs Web API, par convention. Par exemple, vous pourriez avoir une interface IPersonAppService et une classe PersonAppService 
+    et l&#39;implémenter:</p>
 <pre>public interface IPersonAppService : IApplicationService
 {
     //...
@@ -279,80 +203,43 @@ public class PersonAppService : IPersonAppService
 {
     //...
 }</pre>
-<p>ASP.NET Boilerplate automatically registers it since it implements <strong>
-IApplicationService </strong>interface (It's just an empty interface). It's 
-registered as <strong>transient </strong>(created instance per usage). When you 
-inject (using constructor injection) IPersonAppService interface to a class, a 
-PersonAppService object is created and passed into constructor automatically. </p>
-<p><strong>Naming conventions </strong>are very important here. For example you 
-can change name of PersonAppService to MyPersonAppService or another name which 
-contains 'PersonAppService' postfix since the IPersonAppService has this 
-postfix. But you can not name your service as PeopleService. If you do it, it's 
-not registered for IPersonAppService automatically (It's registered to DI 
-framework but with self-registration, not with interface), so, you should manually 
-register it if you want.</p>
-<p>ASP.NET Boilerplate registers assemblies by convention. So, you should tell 
-to ASP.NET Boilerplate to register your assembly by convention. It's pretty 
-easy:</p>
+<p>ASP.NET Boilerplate enregistre automatiquement et implémente <strong>
+IApplicationService </strong>&nbsp;(Il s&#39;agit seulement d&#39;une interface vide). L&#39;enregistrement sera fait en tant que <strong>transient </strong>(création d&#39;une instance à chaque usage). Quand vous injectez la dépendance (par injection via Constructeur) à IPersonAppService, un objet 
+PersonAppService est créé et passé au constructeur automatiquement. </p>
+<p><strong>Les conventions de nommage</strong> sont très importantes ici. Vous pouvez changer par exemple le nom de PersonAppService par MyPersonAppService ou tout autre nom contenant se terminant par 'PersonAppService' car IPersonAppService possède cette terminaison. Mais vous ne pouvez pas la nommer PeopleService. Si vous le faites, cette classe ne sera pas choisie automatiquement comme implémentation de IPersonAppService. Vous devrez donc vous occuper manuellement de cet enregistrement.</p>
+<p>ASP.NET Boilerplate enregistre les librairies par convention. Vous devrez donc indiquer à ASP.NET Boilerplate d&#39;enregistrer votre librairie par convention. C&#39;est très facile:</p>
 <pre lang="cs">IocManager.RegisterAssemblyByConvention(Assembly.GetExecutingAssembly());</pre>
-<p>Assembly.GetExecutingAssembly() gets a reference to the assembly which 
-contains this code. You can pass other assemblies to 
-RegisterAssemblyByConvention method. This is generally done when your module is 
-being initialized. See ASP.NET Boilerplate's
-<a href="/Pages/Documents/Module-System">module system</a> for more.</p>
-<p>You can write your own conventional registration class by implementing
-<strong>IConventionalRegisterer</strong> interface and calling <strong>IocManager.AddConventionalRegisterer</strong> 
-method with your class. You should add it in pre-initialize method of your 
-module.</p>
-<h4 id="DocHelperInterfaces">Helper Interfaces</h4>
-<p>You may want to register a specific class that does not fit to conventional 
-registration rules. ASP.NET Boilerplate provides <strong>ITransientDependency</strong> and 
-<strong>ISingletonDependency</strong> interfaces as a shortcut. For example:</p>
-<pre lang="cs">public interface IPersonManager
-{
-<span lang="tr">    //...</span>
+<p>Assembly.GetExecutingAssembly() renvoit une référence à l&#39;assembly qui contient ce code. Vous pouvez passer d&#39;autres assemblies à la méthode 
+RegisterAssemblyByConvention. C&#39;est généralement utile lorsque votre module est sur le point d&#39;être initialisé. Reportez vous à la documentation <a href="/Pages/Documents/Module-System">système modulaire</a> pour plus de détails.</p>
+<p>Vous pouvez aussi définir vos propres conventions en implémentant l&#39;interface <strong>IConventionalRegisterer</strong> et appeler la méthode <strong>IocManager.AddConventionalRegisterer</strong> dans votre classe. Vous devriez l&#39;ajouter au niveau de la méthode pre-initialize de votre module.</p>
+<h4 id="DocHelperInterfaces">Interfaces Helper</h4>
+<p>Vous Vous pouvez enregistrer une classe spécifique qui ne respecte pas les conventions de nommage. ASP.NET Boilerplate fournit pour cela les interfaces <strong>ITransientDependencyong</strong> et 
+<strong>ISingletonDependency</strong> comm comme facilitateurs. Par exemple: </p>
+<pre lang="cs">public interface IPersonManager<span lang="tr">    //...</span>
 }
 
 public class MyPersonManager : IPersonManager, ISingletonDependency
 {
     <span lang="tr">//...</span>
 }</pre>
-<p>In that way, you can easily register MyPersonManager. When need 
-to inject a IPersonManager, MyPersonManager class is used. Notice that dependency is 
-declared as <strong>Singleton</strong>. Thus, a single instance of 
-MyPersonManager is created and same object is passed to all needed classes. It's 
-just created in first usage, then same instance is used in whole life of the 
-application.</p>
+<p>De cette manière, vous pouvez enregistrer l&#39;implémentation MyPersonManager très facilement. Quand il sera nécessaire d&#39;injecter un IPersonManager, MyPersonManager sera instancié. Vous avez remarqué que cette dépendance est déclarée comme <strong>Singleton</strong>. De . De ce fait, une seule instance de MyPersonManager sera créée et passéee à toutes les classes qui la réclammeront. La création aura lieu au premier usage, et la même instance sera réutilisée tout au long du cycle de vie de l&#39;application.</p>
 
-<h4 id="DocCustomRegistration">Custom/Direct registration</h4>
-<p>If the approaches described before is no sufficient for your situation, you 
-can direcly use <strong>Castle Windsor</strong> to register your classes and dependencies. Thus, 
-you will have all capabilities of registering in Castle Windsor.</p>
-<p>Castle Windsor has <strong>IWindsorInstaller</strong> interface that can be 
-implemented for registration. You can create a class that implements IWindsorInstaller 
-interface in your application:</p>
-<pre lang="cs">public class MyInstaller : IWindsorInstaller
-{
-    public void Install(IWindsorContainer container, IConfigurationStore store)
+<h4 id="DocCustomRegistration">Enregistrement Personnalisé / Direct></h4>
+<p>Si les précédentes approchent ne conviennent pas à votre usage, vous pouvez utiliser directement <strong>Castle Windsor</strong> pour pour l&#39;enregistrement de vos classes et dépendances. De ce fait, vous accédez à l&#39;ensemble des fonctionnalités de Castle Windsor.</p>
+<p>Castle Windsor possède une interface  <strong>IWindsorInstaller</strong> qui peut être implémentée pour gérer l&#39;enregistrement. Vous pouvez créer une classe qui implémente cette interface au sein de votre application:</p>
+<pre lang="cs">public class MyInstaller : IWindsorInstaller   public void Install(IWindsorContainer container, IConfigurationStore store)
     {
         container.Register(Classes.FromThisAssembly().BasedOn&lt;IMySpecialInterface&gt;().LifestylePerThread().WithServiceSelf());
     }
-}</pre>ASP.NET Boilerplate automatically finds and executes this class. Lastly, you 
-can reach to the WindsorContainer using <strong>IIocManager.IocContainer</strong> 
-property. For more information, read
-<a href="http://docs.castleproject.org/Default.aspx?Page=MainPage">Windsor's 
-documentation</a>&nbsp;<h4 id="DocResolvingDependencies">Resolving</h4>
-<p>Registration informs IOC (Inversion of Control) Container (a.k.a. DI 
-frameowk) about your classes, their dependencies and lifecycles. Somewhere in 
-your application you need to create objects using IOC Container. ASP.NET 
-Provides a few options for resolving dependencies.</p>
-<h4 id="DocResolveConstAndProp">Constructor &amp; Property Injection</h4>
-<p>You can use constructor and property injection to get dependencies to your 
-classes as <strong>best practice</strong>. You should do it that way wherever 
-it's possible. An example:</p>
-<pre lang="cs">public class PersonAppService
-{
-    public ILogger Logger { get; set; }
+}</pre>
+    <p>ASP.NEASP.NET Boilerplate recherchera et exécutera cette classe automatiquement. Enfin, vous pouvez accéder au WindsorContainer en utilisant la propriété <strong>IIocManager.IocContainer</strong>. Pour plus d&#39;information, reportez vous à la documentation de
+<a href="http://docs.castleproject.org/Default.aspx?Page=MainPage">Windsor.</a></p>
+<h4 id="DocResolvingDependencies">Résolution</h4>
+<p>L&#39;enregistrement informe le conteneur IOC (Controle d&#39;Injection) de la présence de vos classes, de leurs implémentations, dépendances et cycles de vie. Vous devez indiquer, quelque part dans votre application, la nécessité de créer ces objets en utilisant le conteneur d&#39;IOC. ASP.NET 
+    Boilerplate fournit quelques options sur cette résolution de dépendance.</p>
+<h4 id="DocResolveConstAndProp">Injection de Constructeurs et de Propriétéss</h4>
+<p>Vous pouvez utiliser l&#39;injection de constructeurs et de propriétés pour résoudre les dépendances dans vos classes car c&#39;est une <strong>bonne pratique</strong>. Vous devriez le faire partout où cela est possible. Exemple:</p>
+<pre lang="cs">public class PersonAppServicee    public ILogger Logger { get; set; }
 
     private IPersonRepository _personRepository;
 
@@ -370,16 +257,10 @@ it's possible. An example:</p>
         Logger.Debug("Successfully inserted!");
     }
 }</pre>
-<p>IPersonRepository is injected from constructor and ILogger is injected with 
-public property. In that way, your code will be unaware of dependency injection 
-system at all. This is the most proper way of using DI system.</p>
-<h4 id="DocIocHelper">IIocResolver and IIocManager</h4>
-<p>Sometime you may have to directly resolve your dependency instead of 
-constructor &amp; property injection. This should be avoided when possible, but it 
-may be impossible. ASP.NET Boilerplate provides some services those can be injected 
-and used easily. Example:</p>
-<pre lang="cs">public class MySampleClass : ITransientDependency
-{
+<p>IPersIPersonRepository est injecté à partir du constructeur et ILogger est injecté selon une propriété publique. De cette manière votre code n&#39;a aucune dépendance. C&#39;est la façon la plus propre d&#39;utiliser l&#39;injection de dépendance.</p>
+<h4 id="DocIocHelper">IIocResolver et IIocManager</h4>
+<p>Dans certains cas vous devrez résoudre vos dépendances autrement que par injection de constructeur et de propriété. Cela doit être évité à chaque fois que cela est possible. ASP.NET Boilerplate fournit quelques fonctions pour les injecter et les utiliser facilement. Exemple:</p>
+<pre lang="cs">public class MySampleClass : ITransientDependency {
     private readonly IIocResolver _iocResolver;
 
     public MySampleClass(IIocResolver iocResolver)
@@ -401,42 +282,22 @@ and used easily. Example:</p>
         }
     }
 }</pre>
-<p>MySampleClass in an example class in an application. It constructor-injected
-<strong>IIcResolver</strong> and used it to resolve and release objects. There 
-are a few overloads of <strong>Resolve</strong> method can be used as needed.<strong> Release </strong>method is used to 
-release component (object). It's <strong>critical </strong>
-to call Release if you're manually resolving an object. Otherwise, your 
-application has some memory leak problem. To be sure of releasing the object, 
-use <strong>ResolveAsDisposable</strong> (as shown in the example above) 
-wherever it's possible. It automatically calls Release at the end of the using block.</p>
-<p>If you want to directly reach to IOC Container (Castle Windsor) to resolve dependencies, you 
-can consturctor-inject <strong>IIocManager</strong> and use <strong>IIocManager.IocContainer</strong> 
-property. If you are in a static context or can not inject IIocManager, as a 
-last chance, you can use singleton object <strong>IocManager.Instance</strong> 
-everywhere. But, in that case your codes will not be easy to test.</p>
+<p>MySampleClass est une classe d&#39;exemple d&#39;une application. Elle bénéficie d&#39;une injection par constructeur via <strong>IIcResolver</strong> et l&#39;utilise pour résoudre et libérer les objets. Il existe quelques surcharges de la méthode <strong>Resolve</strong> qui peuvent être utilisées au besoin. La méthode <strong> Release</strong>&nbsp; est utilisée pour décharger le composant (l&#39;object). C&#39;est assez <strong>critique</strong> d&#39;appeler manuellement ce déchargement. Si vous le faites manuellement, votre 
+application aura quelques problèmes de consommation de mémoire excessive. Pour prévenir ce problème, utilisez le déchargement de l&#39;objet en utilisant <strong>ResolveAsDisposable</strong> (comme indiqué dans l&#39;exemple précédent) 
+    partout où cela est possible. Cela appelera automatiquement le déchargement à la fin du bloc.</p>
+<p>Si vous préférez appeler directement le conteneur IOC (Castle Windsor) pour résoudre les dépendances, vous devrez injecter par Controleur <strong>IIocManager</strong> et utiliser la propriété <strong>IIocManager.IocContainer</strong>. Si . Si vous êtes dans un contexte static ou que vous ne pouvez pas injecter IIocManager, vous avez, en dernier recours, la possibilité d&#39;utiliser le singleton <strong>IocManager.Instanceong</strong>. Cel. Cela étant, votre code risque d&#39;être moins testable.</p>
 <h4>Extras</h4>
-<h5>IShouldInitialize interface</h5>
-<p>Some classes need to be initialized before first usage. IShouldInitialize has 
-an Initialize() method. If you implement it, then your Initialize() method is 
-automatically called just after creating your object (before used). Surely, you 
-should inject/resolve the object in order to work this feature.</p>
+<h5>L&#39;interface IShouldInitialize</h5>
+<p>QuelqQuelques classes ont besoin d&#39;être initialisées avant leur premier usage. IShouldInitialize possède une méthode Initialize(). Si vous l&#39;implémentez, votre méthode Initialize() sera automatiquement appelée juste après l&#39;instanciation de votre objet. (avant d&#39;être utilisé). Il faudra bien sûr que votre objet soit capable de gérer cette fonctionnalité.</p>
 
 <h4 id="DocMvcAndWebApiIntegration">ASP.NET MVC &amp; ASP.NET Web API integration</h4>
-<p>Surely, we must call dependency injection system to resolve the root object 
-in dependency graph. In an <strong>ASP.NET MVC </strong>application, it's 
-generally a <strong>Controller </strong>class. We can use contructor injection and property injection
-patterns also in controllers. When a request come to our application, the 
-controller is created using IOC container and all dependencies are resolved 
-recursively. So, who does that? It's done automatically by ASP.NET Boilerplate 
-by extending ASP.NET MVC's default controller factory. As similar, it's true for 
-ASP.NET Web API also. You don't care about creating and disposing objects.</p>
+<p>Nous devrions appeler le système d&#39;injection de dépendance pour résoudre l&#39;objet principal dans notre arbre de dépendance. Dans une application <strong>ASP.NET MVC</strong>, cela renvoit à une classe <strong>Controller</strong>. Nou. Nous pouvons aussi utiliser l&#39;injection de constructeur et de propriété dans nos controleurs. Lorsqu&#39;une requête sera accueillie par notre application, le controleur est créé en utilisant le conteneur IOC et toutes les dépendances seront résolues récursivement. Mais, qui s&#39;occupe de cela ? C&#39;est automatiquement géré par ASP.NET Boilerplate 
+    qui étend le fournisseur de controleur MVC par défaut d&#39;ASP.NET. Cela est également vrai pour ASP.NET Web API. Vous n&#39;aurez pas à vous soucier de la création et destruction de ces objets.</p>
 
-<h4>Last notes</h4>
-<p>ASP.NET Boilerplate simplifies and automates using dependency injection as 
-long as you follow the rules and use the structures above. Most of times you 
-will not need more. But if you need, you can directly use all power of Castle 
-Windsor to perform any task (like custom registrations, injection hooks, 
-interceptors and so on).</p>
+<h4>Dernières indications</h4>
+<p>ASP.NASP.NET Boilerplate simplifie et automatise l&#39;injection de dépendances tant que vous suivez les règles de nommage et d&#39;organisation tels que présentées ici. La plupart du temps, vous n&#39;aurez besoin de rien de plus. Si jamais cela se produisait, vous pourrez utiliser directement toute la puissance de Castle 
+Windsor pour arriver à vos fins. (ex: enregistrement personnalisés, injection hooks, 
+    intercepteurs et autres).</p>
 
 </body>
 
