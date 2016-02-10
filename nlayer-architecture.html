@@ -12,7 +12,7 @@
 <ul>
 	<li><a href="#DocIntroLayers">Introduction</a></li>
 	<li><a href="#DocAbpArchitecture">Architecture de ASP.NET Boilerplate</a><ul>
-		<li><a href="#DocDomainLayer">Couche Domaine</a></li>
+		<li><a href="#DocDomainLayer">Couche Métier</a></li>
 		<li><a href="#DocAppLayer">Couche Applicative</a></li>
 		<li><a href="#DocInfraLayer">Couche nfrastructure</a></li>
 		<li><a href="#DocPresentationLayer">Couche de Présentation et Web</a></li>
@@ -27,8 +27,8 @@
 Design</strong> qui introduit quatre couches principales:</p>
 <ul>
 	<li><strong>La Couche de Présentation</strong>: Elle fournit une interface avec laquelle l&#39;utilisateur peut interagir avec l&#39;application, et réciproquement. </li>
-	<li><strong>La Couche Applicative</strong>: Elle dialogue avec la couche de Présentation et la couche Domaine. C&#39;est le chef d&#39;orchestre qui manipule les objets métiers pour réaliser des tâches spécifiques.</li>
-	<li><strong>La Couche Domaine</strong>: Elle rassemble les différents objets métiers et leurs relations. C&#39;est le coeur de l&#39;application.</li>
+	<li><strong>La Couche Applicative</strong>: Elle dialogue avec la couche de Présentation et la Couche Métier. C&#39;est le chef d&#39;orchestre qui manipule les objets métiers pour réaliser des tâches spécifiques.</li>
+	<li><strong>La Couche Métier</strong>: Elle rassemble les différents objets métiers et leurs relations. C&#39;est le coeur de l&#39;application.</li>
 	<li><strong>La Couche Infrastructure</strong>: Elle mets à disposition des autres couches, un ensemble de fonctionnalités. A titre d&#39;exemple, l&#39;entrepôt permet à la couche applicative d&#39;interagir,<em> in fine</em>, avec une base de données via un ORM.</li>
 </ul>
 
@@ -36,7 +36,7 @@ Design</strong> qui introduit quatre couches principales:</p>
 <ul>
 	<li><strong>La couche de distribution de services</strong>: Elle est utilisée pour exposer les fonctionnalités de l&#39;application à d&#39;autres clients. Il s&#39;agit d&#39;outils tels qu&#39;ASP.NET Web API et WCF.</li>
 </ul>
-<p>Ce sont toutes les couches usuelles d&#39;un architecture orientée Domaine. On peut également trouver quelques écarts mineurs d&#39;implémentation.</p>
+<p>Ce sont toutes les couches usuelles d&#39;un architecture orientée Métier. On peut également trouver quelques écarts mineurs d&#39;implémentation.</p>
 
 <h3 id="DocAbpArchitecture">L&#39;Architecture d&#39;ASP.NET Boilerplate</h3>
 <p>Un apperçu de ses couches et composants sont listés ci-dessous:</p>
@@ -75,7 +75,7 @@ Design</strong> qui introduit quatre couches principales:</p>
         </tr>
         <tr>
             <td class="layer-name">
-                Domaine	(Core)</td>
+                Métier	(Core)</td>
             <td class="layer-building-blocks">
                 <span><a href="/Pages/Documents/Entities">Entitiés</a></span>
                 <span>Value Objects</span> <span><a href="/Pages/Documents/Repositories">Entrepôts</a></span> Classes Métier <span>Services sur les Données Métiers</span> <span><a href="/Pages/Documents/Unit-Of-Work">Tâches unitaires</a></span> <span><a href="/Pages/Documents/EventBus-Domain-Events">Evènements des données métier</a></span></td>
@@ -110,22 +110,22 @@ Design</strong> qui introduit quatre couches principales:</p>
 <p>
 <img alt="A solution structure" height="114" src="/SiteFiles/Content/Documents/Resources/StsSolutionStructure2.png" width="248" /></p>
 <p>L&#39;implémentation d&#39;une couche peut se faire à travers une ou plusieurs projets. Il peut être conseillé de créer plus d&#39;un assembly pour gérer les dépendances tierces (comme NHibernate)</p>
-<h4>Couche Domaine (Core)</h4>
-<p>Le Domaine est la couche où tous les données métiers et leurs relations doivent être implémentées.</p>
+<h4>Couche Métier (Core)</h4>
+<p>La Couche Métier est le lieu où toutes les données métiers et leurs relations doivent être implémentées.</p>
 <p><a href="/Pages/Documents/Entities">Les Entitiés</a> représentent les données et les opérations liées aux opérations métier. Généralement, elles sont mappées aux tables de la base de données.</p>
-<p><a href="/Pages/Documents/Repositories">Les entrepôts</a> sont comme des collections d&#39;objets et sont utilisés pour récupérer et faire persister les données. La couche Domaine indique la composition des entrepôts mais ne les implémentent car c&#39;est la tâche confiée à la couche Infrastructure.</p>
-<p><a href="/Pages/Documents/EventBus-Domain-Events">Les évènements de Domaine</a> sont utilisés pour définir des évènements exclusifs à des évènements du Domaine comme les trigger et permet de les intercepter. Les Services du Domaine fonctionnent avec les entités et implémentent les règles métiers au delà d&#39;une entité isolée ; elles définissent les règles d&#39;interactions de différents ensembles d&#39;entités.</p>
+<p><a href="/Pages/Documents/Repositories">Les entrepôts</a> sont comme des collections d&#39;objets et sont utilisés pour récupérer et faire persister les données. La Couche Métier indique la composition des entrepôts mais ne les implémentent car c&#39;est la tâche confiée à la couche Infrastructure.</p>
+<p><a href="/Pages/Documents/EventBus-Domain-Events">Les évènements Métiers</a> sont utilisés pour définir des évènements exclusifs à des évènements Métiers comme les trigger et permet de les intercepter. Les Services Métiers fonctionnent avec les entités et implémentent les règles métiers au delà d&#39;une entité isolée ; elles définissent les règles d&#39;interactions des différents ensembles d&#39;entités.</p>
 <p><a href="/Pages/Documents/Unit-Of-Work">Le processus unitaire</a> est un modèle de conception pour manipuler les entités qui ont été affectées par la logique métier afin d&#39;en faire persister leur contenu final en base de données.</p>
 <p>Cette couche devrait être indépendante de librairies tierces dans la mesure du possible..</p>
 
 <h4 id="DocAppLayer">Couche Applicative</h4>
 <p>La couche Applicative rassemble les <a href="/Pages/Documents/Application-Services">
     services de l&#39;application</a> qui sont utilisés par la couche de Présentation. Une méthode de service applicatif reçoit un <a href="/Pages/Documents/Data-Transfer-Objects">DTO</a>
-(Data Transfer Object) comme paramètre d&#39;entrée, utilise ces informations d&#39;entrée pour exécuter différentes manipulation spécifiques avec la couche du Domaine et peut retourner un autre DTO, si nécessaire. Généralement, elle ne reçoit ou ne retourne pas d&#39;entité qui permettrait à la couche de Présentation de s&#39;afranchir de la couche de Domaine. Une méthode de service applilcative est généralement considérée comme un processus unitaire <a href="/Pages/Documents/Unit-Of-Work#DocAppServices">processus uniataire</a>.
-<a href="/Pages/Documents/Validating-Data-Transfer-Objects">La validation de la saisie utilisateur</a> est aussi implémentée dans cette couche. ASP.NET Boilerplate fournit une infrastructure pour implémenter facilement cette validation. Une possibilité est également offerte d&#39;utiliser un outil pour gérer les correspondances entre les entités et les DTOs tel que la librairie ol <a href="http://automapper.org" target="_blank">AutoMapper</a>.</p>
+(Data Transfer Object) comme paramètre d&#39;entrée, utilise ces informations d&#39;entrée pour exécuter différentes manipulation spécifiques avec la couche Métier et peut retourner un autre DTO, si nécessaire. Généralement, elle ne reçoit ou ne retourne pas d&#39;entité qui permettrait à la couche de Présentation de s&#39;afranchir de la couche Métier. Une méthode de service applicative est généralement considérée comme un processus unitaire <a href="/Pages/Documents/Unit-Of-Work#DocAppServices">processus unitaire</a>.
+<a href="/Pages/Documents/Validating-Data-Transfer-Objects">La validation de la saisie utilisateur</a> est aussi implémentée dans cette couche. ASP.NET Boilerplate fournit une infrastructure pour implémenter facilement cette validation. Une possibilité est également offerte d&#39;utiliser un outil pour gérer les correspondances entre les entités et les DTOs tel que la librairie <a href="http://automapper.org" target="_blank">AutoMapper</a>.</p>
 
 <h4 id="DocInfraLayer">Couche Infrastructure</h4>
-<p>Alors que la Couche Domaine definit les interfaces de l&#39;<a href="/Pages/Documents/Repositories">entrepôt</a>,
+<p>Alors que la Couche Métier definit les interfaces de l&#39;<a href="/Pages/Documents/Repositories">entrepôt</a>,
     la Couche Infrastructure implémente ces interfaces en utilisant des ORM comme <a href="/Pages/Documents/NHibernate-Integration" target="_blank">NHibernate</a> ou
 <a href="/Pages/Documents/EntityFramework-Integration" target="_blank">EntityFramework</a>.
 ASP.NET Boilerplate prévoit des classes mères pour travailler avec l&#39;un ces ORM. La Couche Infrastrcture est utilisée pour s&#39;afranchir des dépendances des librairies tierces.
