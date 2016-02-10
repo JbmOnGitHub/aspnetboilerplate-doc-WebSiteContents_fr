@@ -14,31 +14,22 @@
 <div class="document-contents">
 
 <h3 id="DocIntroduction">Introduction</h3>
-<p>If an application requires login, it also needs to know the current user 
-performing operations. While ASP.NET itself provides Session objects in the 
-presentation layer, ASP.NET Boilerplate provides <strong>IAbpSession</strong> 
-interface to obtain current user and tenant wherever needed.</p>
+<p>Si l&#39;application impose une authentification, elle connait alors l&#39;identité de l&#39;utilisateur qui effectue actuellement des opérations. ASP.NET fournit nativement un objet Session au niveau de la couche de présentation mais ASP.NET Boilerplate propose l&#39;interface <strong>IAbpSession</strong> pour accéder à l&#39;utilisateur courrant et savoir à quel client (Tenant) il correspond.</p>
 
 <div class="bs-callout bs-callout-warning">
-	<h4>About IAbpSession</h4>
-<p>IAbpSession
-interface must be implemented in order to get actual session informations. While you can 
-implement it in your own way, it's fully implemented in <strong>module-zero</strong> 
-project.</p>
+	<h4>A propos d&#39;IAbpSession</h4>
+<p>L&#39;interface IAbpSession
+    doit être implémentée pour obtenir les informations de la session courante. Au lieu de l&#39;implémenter manuellement, vous pouvez accéder à une implémentation toute prête au niveau du projet <strong>module-zero</strong>.</p>
 </div>
 
-<p>IAbpSession is also fully integrated and used by other structures in ASP.NET 
-Boilerplate (setting system and authorization system for instance).</p>
+<p>IAbpSession est donc intégralement intégrée et utilisée par les autres composants d&#39;ASP.NET 
+Boilerplate (au niveau du paramétrage système et de la gestion des droits d&#39;accès par exemple).</p>
 
-<h3 id="DocInjectingSession">Injecting session</h3>
-<p>IAbpSession is generally <strong>
-<a href="/Pages/Documents/Dependency-Injection#DocPropertyInjection">
-property injected</a></strong> to needed classes unless it's not possible to 
-work without session informations. If we use property injection, we can use
-<strong>NullAbpSession.Instance</strong> as default value as shown below:</p>
-<pre lang="cs">public class MyClass : ITransientDependency
-{
-    public IAbpSession AbpSession { get; set; }
+<h3 id="DocInjectingSession">InjecInjection de la Session</h3>
+<p>IAbpSeIAbpSession est généralement <strong>
+    <a href="/Pages/Documents/Dependency-Injection#DocPropertyInjection">
+    instanciée au niveau propriété par injection de dépendance</a></strong> afin d&#39;être utilisable par les autres classes sans quoi il ne serait pas possible d&#39;interagir avec les données de Session. En utilisant l&#39;injection par propriété, il est alors possible de spécifier <strong>NullAbpSession.Instance</strong> comme valeur par défaut comme illustré ci-dessous:</p>
+<pre lang="cs">public class MyClass : ITransientDependencyblic IAbpSession AbpSession { get; set; }
 
     public MyClass()
     {
@@ -51,33 +42,20 @@ work without session informations. If we use property injection, we can use
         //...
     }
 }</pre>
-<p>Since authorization is a application layer task, it's adviced to <strong>use 
-IAbpSession in application layer and upper layers</strong> (we don't use it in 
-domain layer normally). <strong>ApplicationService</strong>, <strong>
-AbpController</strong> and <strong>AbpApiController</strong> base classes has
-<strong>AbpSession</strong> already injected. So, you can directly use 
-AbpSession property in an application service method for instance.</p>
-<h3 id="DocUsingSession">Using session properties</h3>
-<p>AbpSession defines a few key properties:</p>
+<p>Comme la gestion de l&#39;autorisation est dans la couche applicative, il est conseillé <strong>d&#39;utiliser IAbpSession dans la couche applicative et dans les couches suppérieures.</strong> (nous ne devons pas l&#39;utiliser dans la couche métier). Les classes de base <strong>ApplicationService</strong>, <strong>
+AbpController</strong> et <strong>AbpApiController</strong> reçoivent déjà par injection
+<strong>AbpSession</strong>. Vous pouvez donc utiliser directement la propriété AbpSession dans la couche applicative, par exemple.</p>
+<h3 id="DocUsingSession">Utilisation des propriétés de Session</h3>
+<p>AbpSession définit quelques propriétés principales:</p>
 <ul>
-	<li><strong>UserId</strong>: Id of the current user or null if there 
-	is no current user. It can not be null if the calling code is authorized.</li>
-	<li><strong>TenantId</strong>: Id of the current tenant or null if there is 
-	no current tenant.</li>
-	<li><strong>ImpersonatorUserId</strong>: Id of the impersonator user if 
-	current session is impersonated by another user. It's null if this is not an 
-	impersonated login.</li>
-	<li><strong>ImpersonatorTenantId</strong>: Id of the impersonator user's 
-	tenant, if current session is impersonated by another user. It's null if 
-	this is not an impersonated login.</li>
-	<li><strong>MultiTenancySide</strong>: It may be Host or Tenant.</li>
+	<li><strong>UserIdUserId</strong>: Identifiant de l&#39;utilisateur courant ou nul s&#39;il n&#39;y a pas d&#39;utilisateur actuellement. Il ne peut pas être nul si le code appelé exige une autorisation.</li>
+	<li><strong>TenantIdng</strong>: Identifiant du client actuel ou nul s&#39;il n&#39;y a pas de client actuellement.</li>
+	<li><strong>ImpersonatorUserIdng</strong>: Identifiant impersonnel de l&#39;utilisateur si la session courante est utilisée de manière impersonnelle par un autre utilisateur. La valeur est nulle si l&#39;authentification n&#39;est pas impersonnelle.</li>
+	<li><strong>ImpersonatorTenantIdng</strong>: Identifiant du client correspondant à l&#39;utilisateur en connexion impersonnelle. La valeur est nulle si l&#39;authentification n&#39;est pas impersonnelle.</li>
+	<li><strong>MultiTenancySideng</strong>: Cela peut être un hébergeur ou un client.</li>
 </ul>
-<p>UserId and TenantId is <strong>nullable</strong>. There is also non-nullable
-<strong>GetUserId()</strong> and <strong>GetTenantId()</strong> methods. If 
-you're sure there is a current user, you can call GetUserId(). If current user 
-is null, this method throws exception. GetTenantId() is also similar.</p>
-<p>Impersonator properties are not common as other properties and generally used 
-for <a href="/Pages/Documents/Audit-Logging">audit logging</a> purposes.</p>
+<p>UserId et TenantId sont <strong>nullables</strong>. Des méthodes renvoyant des valeurs non nullables existent : <strong>GetUserId()</strong> et <strong>GetTenantId()</strong>. Si vous êtes certains qu&#39;il existe actuellement un utilisateur, vous pouvez appeler GetUserId(). Si l&#39;utilisateur courant est de valeur nulle, cette méthode déclenchera une erreur. La méthodeGetTenantId() possède le même comportement..</p>
+<p>Les propriétés impersonnelles sont spécifiques, comme d&#39;autres propriétés ; elles sont généralement utiles&nbsp; <a href="/Pages/Documents/Audit-Logging">aux observateurs d&#39;évènements</a>.</p>
 
 </div>
 

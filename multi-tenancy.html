@@ -69,7 +69,7 @@ ASP.NET Boilerplate produit cet effet automatiquement lorsque vous implémentez 
     
     //...other properties
 }</pre>
-<p>Nous pouvons utilisateur la même classe Role pour enregistrer les profils Hébergeur et les profils Clients. Dans ce cas, TenantId indique l&#39;identité de l&#39;hébergeur ou de son appartenance à un Client. Dit autrement, une valeur <strong>nule</strong> se rapporte à une entité <strong>hébergeur</strong>, une valeur <strong>non-nule</strong> renvoit à une entité qui est la propriété d&#39;un <strong>client</strong> en rapport avec l&#39;identifiant du <strong>Client</strong>.</p>
+<p>Nous pouvons utilisateur la même classe Role pour enregistrer les profils Hébergeur et les profils Clients. Dans ce cas, TenantId indique l&#39;identité de l&#39;hébergeur ou de son appartenance à un Client. Dit autrement, une valeur <strong>nulle</strong> se rapporte à une entité <strong>hébergeur</strong>, une valeur <strong>non-nulle</strong> renvoit à une entité qui est la propriété d&#39;un <strong>client</strong> en rapport avec l&#39;identifiant du <strong>Client</strong>.</p>
 <p>IMayHaveTenant n&#39;est pas équivalente à IMustHaveTenant. Par exemple, une classe Product pourrait ne pas être IMayHaveTenant alors que Product n&#39;est pas utilisé actuellement dans l&#39;application et donc non soumise à l&#39;administration des Clients. Donc, l&#39;usage de l&#39;interface IMayHaveTenant sécurise cela car il est difficile de maintenir du code partagé entre hébergeur et Clients..</p>
 <h4>Enregistrement des Entités</h4>
 <p>Un utilisateur Client ne doit pas pouvoir créer/modifier les entités des autres Clients. ASP.NET 
