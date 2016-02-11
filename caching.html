@@ -13,16 +13,13 @@
 
 <h3>Introduction</h3>
 
-<p>ASP.NET Boilerplate provides an abstraction for caching. It internally uses this cache abstraction. While default 
-implementation uses
+<p>ASP.NET Boilerplate fournit une abstraction pour la gestion du cache. Il utilise lui-même cette abstraction. Bien que l&#39;implémentation par défaut utilise
 <a href="https://msdn.microsoft.com/en-us/library/system.runtime.caching.memorycache(v=vs.110).aspx?f=255&amp;MSPPError=-2147217396">
-MemoryCache</a>, it can be implemented and changable for any other caching 
-provider.</p>
+MemoryCache</a>, il est possible de l&#39;implémenter au profit d&#39;un autre gestionnaire de cache.</p>
 
 <h3>ICacheManager</h3>
 
-<p>Main interface for caching is <strong>ICacheManager</strong>. We can 
-<a href="/Pages/Documents/Dependency-Injection">inject</a> it and use it to get a cache. Example:</p>
+<p>L&#39;interface principale pour la gestion du cache est <strong>ICacheManager</strong>. Nous pouvons utiliser l&#39;<a href="/Pages/Documents/Dependency-Injection">injection</a> pour utiliser et accéder à un cache. Exemple:</p>
 
 <pre lang="cs">public class TestAppService : ApplicationService
 {
@@ -35,7 +32,7 @@ provider.</p>
 
     public Item GetItem(int id)
     {
-        //Try to get from cache
+        //Essai d&#39;accès à l&#39;item par le cache...
         return _cacheManager
                 .GetCache(&quot;MyCache&quot;)
                 .Get(id.ToString(), () =&gt; GetFromDatabase(id)) as Item;
@@ -43,70 +40,52 @@ provider.</p>
 
     public Item GetFromDatabase(int id)
     {
-        //... retrieve item from database
+        //... récupération depuis la bdd
     }
 }</pre>
-<p>In this sample, we're injecting <strong>ICacheManager</strong> and getting a 
-cache named <strong>MyCache</strong>.</p>
+<p>Dans cet extrait, nous injectons <strong>ICacheManager</strong> et avons accès à un cache appelé <strong>MyCache</strong>.</p>
 
 <div class="bs-callout bs-callout-warning">
-	<h4><strong>WARNING: </strong>GetCache Method</h4>
-	<p>Do not use GetCache method in your constructor. This may dispose the 
-	Cache if your class is transient.</p>
+	<h4><strong>ATTENTION:</strong> La méthode GetCache</h4>
+	<p>N&#39;utilisez pas la méthode GetCache dans votre constructeur. Cela pourrait vider le Cache si votre classe est transient. (instanciée à chaque usage)</p>
 </div>
 
 <h3>ICache</h3>
 
-<p>ICacheManager.<strong>GetCache</strong> method returns an <strong>ICache</strong>. 
-A cache is singleton (per cache name). It is created first time it's 
-requested, then returns always the same cache object. So, we can share same 
-cache with same name in different classes (clients).</p>
-	<p>In the sample code, we see simple usage of ICache.<strong>Get</strong> 
-method. It has two arguments:</p>
+<p>La méthode ICacheManager.<strong>GetCache</strong> fournit une instance d&#39;<strong>ICache</strong>. 
+    Un Cache est singleton (par nom de cache). Il est créé au premier usage et le même objet est ensuite retourné pour toutes les autres demandes. Nous pouvons donc partager ce même cache (du même nom) à toutes les autres classes. (clientes).</p>
+	<p>Dans le code exemple, nous avons un usage basique de la méthode ICache.<strong>Get</strong>. Il comporte deux arguments:</p>
 <ul>
-	<li><strong>key</strong>: A string unique key of an item in the cache.</li>
-	<li><strong>factory</strong>: An action which is called if there is no 
-	item with the given key. Factory method should create and return the 
-	actual item. This is not called if given key has present in the cache.</li>
+	<li><strong>key</strong>: Une chaine unique utilisée comme identifiant de l&#39;item à retourner.</li>
+	<li><strong>factory</strong>: Une action qui sera appelée si l&#39;objet n&#39;existe pas pour la clef spécifiée. La méthode Factory devrait créer et retourner l&#39;item indiqué. Elle ne sera pas appelée si l&#39;objet correspondant à la clef spécifiée est déjà présent dans le cache.</li>
 </ul>
-<p>ICache interface also has methods like <strong>GetOrDefault</strong>,
-<strong>Set</strong>, <strong>Remove</strong> and <strong>Clear</strong>. 
-There are also <strong>async</strong> versions of all methods.</p>
+<p>L&#39;interface ICache possède aussi d&#39;autres méthodes comme <strong>GetOrDefault</strong>,
+<strong>Set</strong>, <strong>Remove</strong> et <strong>Clear</strong>. 
+    Il existe aussi les versions asynchrones <strong>(async)</strong> de toutes ces méthodes.</p>
 
 <h3>ITypedCache</h3>
 
-<p><strong>ICache </strong>interface works <strong>string</strong> as key 
-and <strong>object</strong> as value. <strong>ITypedCache</strong> is a 
-wrapper to ICache to provide <strong>type safe</strong>, generic cache. To 
-convert ICache to ITypedCache, we can use <strong>AsTyped</strong> extension method as shown 
-below:</p>
+<p>L&#39;interface <strong>ICache</strong> utilise le type <strong>string</strong> comme clef et <strong>object</strong> en valeur. <strong>ITypedCache</strong> est un <em>wrapper</em> pour ICache permettant de <strong>typer avec précaution</strong> le cache générique. Pour convertir ICache en ITypedCache, nous pouvons utiliser l&#39;extension de méthode <strong>AsTyped</strong> comme ceci:</p>
 <pre lang="cs">ITypedCache&lt;int, Item&gt; myCache = _cacheManager.GetCache(&quot;MyCache&quot;)<strong>.AsTyped&lt;int, Item&gt;()</strong>;</pre>
-<p>Then we can use Get method without converting and casting code.</p>
+<p>Nous pouvons ensuite appeler la méthode Get sans avoir à convertir ou à caster manuellement.</p>
 
 <h3>Configuration</h3>
 
-<p>Default cache expire time is 60 minutes. It's sliding. So, if you don't use 
-an item in the cache for 60 minutes, it's automatically removed from the cache. 
-You can configure it for all caches or for a specific cache.</p>
-<pre>//Configuration for all caches
+<p>Par défaut, le cache expire au bout de 60 minutes. Ce délai est lissé. Cela veut dire que si vous n&#39;utilisez pas un item du cache pendant 60 minutes, il sera automatiquement supprimé du cache. Ce délai est à définir globalement ou pour un seul cache.</p>
+<pre>//Configuration pour tous les caches
 Configuration.Caching.ConfigureAll(cache =&gt;
 {
     cache.DefaultSlidingExpireTime = TimeSpan.FromHours(2);
 });
 
-//Configuration for a specific cache
+//Configuration pour un cache spécifique
 Configuration.Caching.Configure(&quot;MyCache&quot;, cache =&gt;
 {
     cache.DefaultSlidingExpireTime = TimeSpan.FromHours(8);
 });</pre>
-<p>This code should be placed
-<a href="/Pages/Documents/Module-System#DocModulePreInit"><strong>PreInitialize</strong></a> 
-method of your module. With such a code, MyCache will have 8 hours expire time 
-while all other caches will have 2 hours.</p>
-<p>Your configuration action is called once cache is first created (on 
-first request). Configuration is not restricted to DefaultSlidingExpireTime 
-only, since cache object is an ICache, you can use it's properties and methods 
-freely configure and initialize it.</p>
+<p>Ce code devrait être placé au niveau de la méthode <a href="/Pages/Documents/Module-System#DocModulePreInit"><strong>PreInitialize</strong></a> de votre module. Dans le précédent code, MyCache dispose d&#39;un cache de 8 heures alors que tous les autres sont paramétrés sur 2 heures.</p>
+<p>Votre action de configuration est exécutée une seule fois lorsque le cache est créé. (à la première sollicitation). La configuration ne se limite pas à DefaultSlidingExpireTime 
+    car l&#39;objet cache implémente ICache, toutes ses propriétés et méthodes permettent de l&#39;initaliser et de le configurer.</p>
 
 </div>
 
