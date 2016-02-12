@@ -3,7 +3,7 @@
 
 <head>
 <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
-<title>Entities</title>
+<title>Entités</title>
 <link href="bootstrap.min.css" type="text/css" rel="stylesheet" />
 </head>
 
@@ -11,11 +11,9 @@
 
 <div class="document-contents">
 
-<p>Entities are one of the core concepts of DDD (Domain Driven Design). Eric Evans describe it as "<em>An object that is not fundamentally defined by its attributes, but rather by a thread of continuity and identity</em>". So, entities have Id's and stored in a database. 
-An entity is generally mapped to a table in the database.</p>
-<h3 id="DocEntityClasses">Entity classes</h3>
-<p>In ASP.NET Boilerplate, Entities are derived from <strong>Entity </strong>
-class. See the sample below:</p>
+<p>Les entités sont l&#39;un des concepts phares du DDD (Domain Driven Design). Eric Evans les décrit de cette manière &quot;<em>Un objet n&#39;est pas fondammentalement défini par ses attributs, mais plutôt par ses traits d&#39;identitiés durables</em>". Les entités ont des identifiants et sont stockés en base de données. Une entité est généralement mappée en correspondance à une table de la base de données.</p>
+<h3 id="DocEntityClasses">Classes Entités</h3>
+<p>Dans ASP.NET Boilerplate, les entités dérivent de la classe <strong>Entity</strong>. Voyez plutôt:</p>
 
 <pre lang="cs">public class Person : Entity
 {
@@ -29,13 +27,8 @@ class. See the sample below:</p>
     }
 }</pre>
 
-<p><strong>Person</strong> class is defined as an entity. It has two properties. 
-Also, Entity class defines an <strong>Id</strong> property. It's <strong>primary 
-key </strong>of the Entity. So, name of primary keys of all Entities are same, 
-it's <strong>Id</strong>.</p>
-<p>Type of Id (primary key) can be changed. It's
-<strong>int </strong>(Int32) by default. If you want to define another 
-type as Id, you should explicitly declare it as shown below:</p>
+<p><strong>Person</strong> est une classe définie comme Entité. Elle possède deux propriétés. La classe Entity définit la propriété <strong>Id</strong>. Il s&#39;agit de la <strong>clef primaire</strong> de l&#39;Entité. De fait, le nom des clefs primaires est toujours <strong>Id</strong>.</p>
+<p>Le type de l&#39;identifiant (primary key) peut être changé mais c&#39;est le type <strong>int </strong>(Int32) par défaut. Si vous voulez définir un autre type, vous pouvez le faire explicitement comme montré ci-dessous:</p>
 
 <pre lang="cs">public class Person : Entity&lt;long&gt;
 {
@@ -49,26 +42,19 @@ type as Id, you should explicitly declare it as shown below:</p>
     }
 }</pre>
 
-<p>Also, you can set it as string, Guid or something else.</p>
-<p>Entity class overrides <strong>equality</strong> operator (==) to easily 
-check if two entities are equal (their Id is equal). It also defines the <strong>
-IsTransient()</strong> method to check if it has an Id or not.</p>
-<h3 id="DocConventionalInterfaces">Conventional interfaces</h3>
-<p>In many application, similar entity properties (and database table fields) 
-are used like CreationTime indicates that when this entity is created. ASP.NET 
-Boilerplate provides some useful interfaces to make this common properties 
-explicit and expressive. Also, this provides a way of coding common code for 
-Entities which implement these interfaces.</p>
-<h4 id="DocAuditing">Auditing</h4>
-<p><strong>IHasCreationTime</strong> makes it possible to use a common property 
-for '<strong>creation time</strong>' information of an entity. ASP.NET Boilerplate automatically sets 
-CreationTime to <strong>current time</strong> when an Entity is inserted 
-into database which implements this interface.</p>
+<p>Vous pouvez donc les définir comme string, Guid ou tout autre chose.</p>
+<p>Les classes Entités surchargent l&#39;opérateur <strong>equality</strong> (==) pour vérifier facilement si deux entités sont égales. La méthode <strong>
+IsTransient()</strong> vérifie si un id est défini ou pas.</p>
+<h3 id="DocConventionalInterfaces">Les Conventions via les interfaces</h3>
+<p>Dans beaucoup d&#39;applications, les propriétés sont similaires (en correspondance des champs des tables) et souvent utilisées comme CreationTime qui indique à quel moment l&#39;entité a été créée. ASP.NET 
+Boilerplate fournit quelques interfaces utiles pour gérer ces propriétés communes de manière explicite. Cela fournit un moyen pour unifier le développement des Entités en implémentant ces interfaces.</p>
+<h4 id="DocAuditing">Supervision</h4>
+<p><strong>IHasCreationTime</strong> crée si possible une propriété pour l&#39;information &#39;<strong>creation time</strong>' d&#39;une Entité. ASP.NET Boilerplate paramètre automatiquement la date de création en fonction lorsqu&#39;une entité est insérée en base de données, si l&#39;Entité implémente cette interface.</p>
 <pre lang="cs">public interface IHasCreationTime
 {
    <span lang="tr"> </span>DateTime CreationTime { get; set; }
 }</pre>
-<p>Person class can be re-written as shown below by implementing IHasCreationTime interface:</p>
+<p>La classe Person pourrait être ré-écrite comme si dessous en implémentant IHasCreationTime:</p>
 <pre lang="cs">public class Person : Entity&lt;long&gt;, IHasCreationTime
 {
     public virtual string Name { get; set; }
@@ -81,17 +67,13 @@ into database which implements this interface.</p>
     }
 }</pre>
 
-<p><strong>ICreationAudited</strong> extens IHasCreationTime by adding&nbsp; 
-<strong>CreatorUserId</strong>:</p>
+<p><strong>ICreationAudited</strong> étend IHasCreationTime en y ajoutant <strong>CreatorUserId</strong>:</p>
 <pre lang="cs">public interface ICreationAudited : IHasCreationTime
 {
     long? CreatorUserId { get; set; }
 }</pre>
-<p>ASP.NET Boilerplate automatically sets CreatorUserId to <strong>current 
-user's id</strong> when saving a new entity. You can also implement ICreationAudited easily by deriving your entity from
-<strong>CreationAuditedEntity</strong> class. It has also a generic version for 
-different type of Id properties.</p>
-<p>There is also similar interfaces for modifications:</p>
+<p>ASP.NET Boilerplate affecte automatiquement CreatorUserId en fonction de <strong>l&#39;id de l&#39;utilisateur courant</strong> lorsqu&#39;une nouvelle entité est enregistrée en base de données.. Vous pouvez implémenter aussi facilement ICreationAudited en dérivant votre entité de la classe <strong>CreationAuditedEntity</strong>. Il existe une version générique pour chaque type d&#39;identifiant souhaité.</p>
+<p>Il existe également des interfaces similaires pour la gestion des modifications:</p>
 <pre lang="cs">public interface IHasModificationTime
 {
     DateTime? LastModificationTime { get; set; }
@@ -101,35 +83,24 @@ public interface IModificationAudited : IHasModificationTime
 {
     long? LastModifierUserId { get; set; }
 }</pre>
-<p>ASP.NET Boilerplate also automatically sets these properties when updating an 
-entity. You just define them for your entity.</p>
-<p>If you want to implement all of audit properties, you can direcly implement
-<strong>IAudited </strong>interface:</p>
+<p>ASP.NET Boilerplate affecte donc automatiquement ces propriétés lorsqu&#39;une Entité est mise à jour. Vous devez juste l&#39;implémenter sur votre entité.</p>
+<p>Si vous voulez implémenter toutes les propriétés de traçabilité, vous pouvez directement implémenter l&#39;interface
+<strong>IAudited</strong>:</p>
 <pre lang="cs">public interface IAudited : ICreationAudited, IModificationAudited
 {
         
 }</pre>
-<p>As a shortcut, you can derive from <strong>AuditedEntity </strong>class 
-instead of direcly implementing <strong>IAudited</strong>. AuditedEntity class has 
-also a generic version for different type of Id properties.</p>
-<p>Note: ASP.NET Boilerplate gets current user's Id from
+<p>En raccourci, vous pouvez dériver de la classe <strong>AuditedEntity </strong>ou implémenter directement <strong>IAudited</strong>. La classe AuditedEntity possède donc une version générique pour chaque type d&#39;Id.</p>
+<p>Note: ASP.NET Boilerplate fournit l&#39;id courant à parit du composant
 <a href="/Pages/Documents/Abp-Session">ABP Session</a>.</p>
-<h4 id="DocSoftDelete">Soft delete</h4>
-<p>Soft delete is a commonly used pattern to mark an Entity as deleted instead 
-of actually deleting it from database. For instace, you may not want to hard 
-delete a User from database since it has many releations to other tables. 
-<strong>ISoftDelete</strong> interface is used for this purpose:</p>
+<h4 id="DocSoftDelete">Suppression douce</h4>
+<p>La suppression douce (Soft delete) est un pattern utiilsé habituellement pour marquer un objet comme supprimé au lieu de le supprimer réellement en base de données. Par exemple, vous pourriez souhaiter supprimer complètement un utilisateur de la base de données mais il peut exister beaucoup de restrictions, L&#39;interface <strong>ISoftDelete</strong> est utilisée dans ce but.:</p>
 <pre lang="cs">public interface ISoftDelete
 {
     bool IsDeleted { get; set; }
 }</pre>
-<p>ASP.NET Boilerplate implements soft delete pattern out-of-the-box. When a 
-soft-delete entity is being deleted, ASP.NET Boilerplate detects this, prevents 
-deleting, sets IsDeleted as true and updates entity in the database. Also, it 
-does not retrive (select) soft deleted entities from database, automatically 
-filters them.</p>
-<p>If you use soft delete, you may also want to store information when an entity 
-is deleted and who deleted it. You can implement <strong>IDeletionAudited</strong> interface that is shown below:</p>
+<p>ASP.NET Boilerplate implémente le soft delete pour un usage prêt à l&#39;emploi. Quand une entité implémente le soft-delete, ASP.NET Boilerplate le détecte, intercepte la suppression et affecte la propriété IsDeleted à vrai et réalise l&#39;update en base de données. Bien sûr, lors de la récupération des données (select), les données marquées comme supprimées sont automatiquement filtrées par le framework..</p>
+<p>Si vous voulez utiliser le soft delete, vous pouvez vouloir enregistrer d&#39;avantages d&#39;informations lorsqu&#39;une entité est supprimée et qui est à l&#39;origine de l&#39;action. Vous pouvez implémenter <strong>IDeletionAudited</strong> comme illustré ci-dessous:</p>
 <pre lang="cs">public interface IDeletionAudited : ISoftDelete
 {
     long? DeleterUserId { get; set; }
@@ -137,42 +108,26 @@ is deleted and who deleted it. You can implement <strong>IDeletionAudited</stron
     DateTime? DeletionTime { get; set; }
 }
 </pre>
-<p>IDeletionAudited extends ISoftDelete as you noticed. ASP.NET Boilerplate 
-automatically sets these properties when an entity is deleted.</p>
-<p>If you want to implement all audit interfaces (creation, modification and 
-deletion) for an entity, you can directly implement <strong>IFullAudited</strong> 
-since it inherits all:</p>
+<p>IDeletionAudited étend ISoftDelete comme attendu. ASP.NET Boilerplate 
+    affecte automatiquement des propriétés quand une entité est supprimée.</p>
+<p>Si vous souhaitez implémenter toutes les interfaces de suppervision (création, modifications et suppression) pour une entité, vous pouvez directement implémenter <strong>IFullAudited</strong>:</p>
 <pre lang="cs">public interface IFullAudited : IAudited, IDeletionAudited
 {
         
 }</pre>
-<p>&nbsp;As a shortcut, you can derive your entity from <strong>
-FullAuditedEntity</strong> class that implements all.</p>
-<p>NOTE: All audit interfaces and classes have a generic version for defining navigation property 
-to your <strong>User</strong> entity (like ICreationAudited&lt;TUser&gt; and 
+<p>NOTE: Toutes les classes et interfaces ont une version générique pour définir des propriétés de relation à vos entités <strong>Utilisateur</strong> (comme ICreationAudited&lt;TUser&gt; et 
 FullAuditedEntity&lt;TPrimaryKey, TUser&gt;).&nbsp;</p>
-<h4 id="DocActivePassive">Active/Passive</h4>
-<p>Some entities need to be marked as Active or Passive. Then you may take 
-action upon active/passive state of the entity. You can implement <strong>
-IPassivable</strong> interface that is created for this reason. It defines
-<strong>IsActive</strong> property.</p>
-<p>If your entity will be active on first creation, you can set IsActive to true 
-in the constructor.</p>
-<p>This is different than soft delete (IsDeleted). If an entity is soft deleted, 
-it can not be retrieved from database (ABP prevents it as default). But, for 
-active/passive entities, it's completely up to you to control getting entities.</p>
-<h3 id="DocIEntityInterfaces">Entity Change Events</h3>
-<p>ASP.NET Boilerplate automatically triggers certain events when an entity is 
-inserted, updated or deleted. Thus, you can register to these events and perform 
-any logic you need. See Predefined Events section in
-<a href="/Pages/Documents/EventBus-Domain-Events">event bus documentation</a> 
-for more information.</p>
-<h3>IEntity interfaces</h3>
-<p>Actually, <strong>Entity </strong>class implements <strong>IEntity </strong>interface (and <strong>Entity&lt;TPrimaryKey&gt;</strong> implements <strong>IEntity&lt;TPrimaryKey&gt;</strong>). 
-If you do not want to derive from Entity class, you can implement these 
-interfaces directly. There are also corresponding interfaces for other entity 
-classes. But this is not the suggested way, unless you have a good 
-reason to do not derive from Entity classes.</p>
+<h4 id="DocActivePassive">Actif/Passif</h4>
+<p>Des entités ont besoins d&#39;être notées comme Active ou Passive (ou Archivée). Vous pouvez implémenter l&#39;interface <strong>
+IPassivable</strong>. Elle définit la propriété <strong>IsActive</strong>.</p>
+<p>Si votre entité devient active dès sa création, vous pouvez affecter IsActive à vrai au niveau du constructeur.</p>
+<p>Cette notion est différente du principe de soft delete (IsDeleted). Si une entité est soft deleted, 
+    elle ne pourra pas être récupérée, par défaut, dans le base de données. (ABP s&#39;en préoccupe par défaut). Par contre, dans le cas des entités actives/passives, c&#39;est à vous de gérer le comportement de ces entités archivées.</p>
+<h3 id="DocIEntityInterfaces">Observateurs des changements</h3>
+<p>ASP.NET Boilerplate fournit automatiquement certains évènements lorsqu&#39;une entité est insérée, mise à jour et supprimée. De ce fait, vous pouvez vous abonner à ces évènements et effectuer les tâches métiers dont vous avez besoin. Reportez vous à la section Evènements Prédéfinis au niveau de la section <a href="/Pages/Documents/EventBus-Domain-Events">event bus</a> pour plus de détails.</p>
+<h3>Les interfaces IEntity</h3>
+<p>Actuellement les classes <strong>Entity</strong> implémentent l&#39;interface <strong>IEntity</strong> (et <strong>Entity&lt;TPrimaryKey&gt;</strong> implémentent <strong>IEntity&lt;TPrimaryKey&gt;</strong>). 
+    Si vous de voulez pas dériver de la classe Entity, vous pouvez implémenter ces interfaces directement. Il en va de même pour les autres interfaces des classes Entité. Cependant, cela ne devrait être nécessaire que dans des cas bien justifiés.</p>
 
 </div>
 
