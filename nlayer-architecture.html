@@ -14,7 +14,7 @@
 	<li><a href="#DocAbpArchitecture">Architecture de ASP.NET Boilerplate</a><ul>
 		<li><a href="#DocDomainLayer">Couche Métier</a></li>
 		<li><a href="#DocAppLayer">Couche Applicative</a></li>
-		<li><a href="#DocInfraLayer">Couche nfrastructure</a></li>
+		<li><a href="#DocInfraLayer">Couche Infrastructure</a></li>
 		<li><a href="#DocPresentationLayer">Couche de Présentation et Web</a></li>
 		<li><a href="#DocOthers">Autres</a></li>
 	</ul>
@@ -78,7 +78,7 @@ Design</strong> qui introduit quatre couches principales:</p>
                 Métier	(Core)</td>
             <td class="layer-building-blocks">
                 <span><a href="/Pages/Documents/Entities">Entitiés</a></span>
-                <span>Value Objects</span> <span><a href="/Pages/Documents/Repositories">Entrepôts</a></span> Classes Métier <span>Services sur les Données Métiers</span> <span><a href="/Pages/Documents/Unit-Of-Work">Tâches unitaires</a></span> <span><a href="/Pages/Documents/EventBus-Domain-Events">Evènements des données métier</a></span></td>
+                <span>Value Objects</span> <span><a href="/Pages/Documents/Repositories">Entrepôts</a></span> Classes Métier <span>Services sur les Données Métiers</span> <span><a href="/Pages/Documents/Unit-Of-Work">Unités de travail</a></span> <span><a href="/Pages/Documents/EventBus-Domain-Events">Evènements des données métier</a></span></td>
         </tr>
         <tr>
             <td class="layer-name">
@@ -115,13 +115,13 @@ Design</strong> qui introduit quatre couches principales:</p>
 <p><a href="/Pages/Documents/Entities">Les Entitiés</a> représentent les données et les opérations liées aux opérations métier. Généralement, elles sont mappées aux tables de la base de données.</p>
 <p><a href="/Pages/Documents/Repositories">Les entrepôts</a> sont comme des collections d&#39;objets et sont utilisés pour récupérer et faire persister les données. La Couche Métier indique la composition des entrepôts mais ne les implémentent car c&#39;est la tâche confiée à la couche Infrastructure.</p>
 <p><a href="/Pages/Documents/EventBus-Domain-Events">Les évènements Métiers</a> sont utilisés pour définir des évènements exclusifs à des évènements Métiers comme les trigger et permet de les intercepter. Les Services Métiers fonctionnent avec les entités et implémentent les règles métiers au delà d&#39;une entité isolée ; elles définissent les règles d&#39;interactions des différents ensembles d&#39;entités.</p>
-<p><a href="/Pages/Documents/Unit-Of-Work">Le processus unitaire</a> est un modèle de conception pour manipuler les entités qui ont été affectées par la logique métier afin d&#39;en faire persister leur contenu final en base de données.</p>
+<p><a href="/Pages/Documents/Unit-Of-Work">L&#39;unité de travail</a> est un modèle de conception pour manipuler les entités qui ont été affectées par la logique métier afin d&#39;en faire persister leur contenu final en base de données.</p>
 <p>Cette couche devrait être indépendante de librairies tierces dans la mesure du possible..</p>
 
 <h4 id="DocAppLayer">Couche Applicative</h4>
 <p>La couche Applicative rassemble les <a href="/Pages/Documents/Application-Services">
     services de l&#39;application</a> qui sont utilisés par la couche de Présentation. Une méthode de service applicatif reçoit un <a href="/Pages/Documents/Data-Transfer-Objects">DTO</a>
-(Data Transfer Object) comme paramètre d&#39;entrée, utilise ces informations d&#39;entrée pour exécuter différentes manipulation spécifiques avec la couche Métier et peut retourner un autre DTO, si nécessaire. Généralement, elle ne reçoit ou ne retourne pas d&#39;entité qui permettrait à la couche de Présentation de s&#39;afranchir de la couche Métier. Une méthode de service applicative est généralement considérée comme un processus unitaire <a href="/Pages/Documents/Unit-Of-Work#DocAppServices">processus unitaire</a>.
+(Data Transfer Object) comme paramètre d&#39;entrée, utilise ces informations d&#39;entrée pour exécuter différentes manipulation spécifiques avec la couche Métier et peut retourner un autre DTO, si nécessaire. Généralement, elle ne reçoit ou ne retourne pas d&#39;entité qui permettrait à la couche de Présentation de s&#39;afranchir de la couche Métier. Une méthode de service applicative est généralement considérée comme <a href="/Pages/Documents/Unit-Of-Work#DocAppServices">une unité de travail</a>.
 <a href="/Pages/Documents/Validating-Data-Transfer-Objects">La validation de la saisie utilisateur</a> est aussi implémentée dans cette couche. ASP.NET Boilerplate fournit une infrastructure pour implémenter facilement cette validation. Une possibilité est également offerte d&#39;utiliser un outil pour gérer les correspondances entre les entités et les DTOs tel que la librairie <a href="http://automapper.org" target="_blank">AutoMapper</a>.</p>
 
 <h4 id="DocInfraLayer">Couche Infrastructure</h4>

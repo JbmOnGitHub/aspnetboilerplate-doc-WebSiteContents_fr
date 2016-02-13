@@ -71,7 +71,7 @@
 	    Les composants devraient dépendre de leurs interfaces plutôt que de leurs implémentations concrêtes. Cela amène au principe d&#39;Inversion de Dépendance. </li>
 	<li>Si PersonAppService crée lui même PersonRepository, il devient dépendant d&#39;une implémentation spécifique de IPersonRepository et ne peut plus travailler avec d&#39;autres implémentations. La séparation des interfaces de leurs implémentations devient donc factice. La dépendance forte dans un code source le rend faiblement réutilisable.</li>
 	<li>A l&#39;avenir, nous pourrions décider de modifier PersonRepository et d&#39;en faire un singleton. (ce qui est mieux que de devoir ré instancier un objet à chaque usage) Nous pourrions implémenter aussi plusieurs classes à partir de IPersonRepository et utiliser l&#39;une ou l&#39;autre de manière conditionnelle. Dans cette situation, nous devrions changer toutes les classes qui dépendent de IPersonRepository.</li>
-	<li>Avec un tel niveau de couplage, il est très difficile ( voire impossible) de tester PersonAppService unitairement.</li>
+	<li>Avec un tel niveau de couplage, il est très difficile (voire impossible) de tester PersonAppService unitairement.</li>
 </ul>
 <p>Pour résoudre certains de ces problèmes, des modèles de conception peuvent être appliqués. Pour cette raison, la création de la classe entrepôt est abstraite. Voyez plutôt:</p>
 <pre lang="cs">public class PersonAppService

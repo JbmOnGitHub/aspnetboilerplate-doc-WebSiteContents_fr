@@ -192,7 +192,7 @@ Task&lt;long&gt; LongCountAsync(Expression&lt;Func&lt;TEntity, bool&gt;&gt; pred
 }</pre>
 <p>La méthode GetAllPeople est asynchrone et utilise GetAllListAsync avec le mot clef await.</p>
 <p>Async n&#39;est pas forcément supporté par tous les ORM. EntityFramework le supporte. Si ça n&#39;est pas supporté, les méthodes de l&#39;entrepôt travailleront de façon synchrone. A titre d&#39;exemple, InsertAsync fonctionnera de la même manière qu&#39;Insert avec EntityFramework car EF 
-    n&#39;écrit pas immédiatement les nouvelles entités en base de données. Cela se produit lorsque le processus unitaire (unit of work) est finalisé (DbContext.SaveChanges).</p>
+    n&#39;écrit pas immédiatement les nouvelles entités en base de données. Cela se produit lorsque l&#39;unité de travail (unit of work) est finalisé (DbContext.SaveChanges).</p>
 
 <h3 id="DocRepositoryImpl">L&#39;implémentation de l&#39;entrepôt</h3>
 
