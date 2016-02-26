@@ -16,40 +16,23 @@
 <div class="document-contents">
 
 <h3 id="DocIntro">Introduction</h3>
-<p>It's common to use the <a href="/Pages/Documents/Entities#DocSoftDelete">
-<strong>soft-delete</strong></a> pattern which is used to not delete an entity 
-from database but only mark it as 'deleted'. So, if an entity is soft-deleted, 
-it should not be accidently retrieved into the application. To provide that, we 
-would add a SQL <strong>where</strong> condition like 'IsDeleted = false' in 
-every query we select entities. This is a tedious but more importantly a 
-forgettable task. So, there should be an automatic way of it.</p>
-<p>ASP.NET Boilerplate provides <strong>data filters </strong>those can be used 
-to automatically filter queries based on some rules. There are some pre-defined 
-filters, but also you can create your own filters.</p>
+<p>Il est courant d&#39;utiliser le mécanisme de <a href="/Pages/Documents/Entities#DocSoftDelete">
+    <strong>soft-delete</strong></a> qui ne supprime pas une entité mais la marque simplement comme &quot;effacée&quot;. Si une entité porte ce marqueur, elle ne devrait donc jamais apparaître par accident dans l&#39;application. Pour s&#39;assurer de ça, nous pourrions ajouter, pour chaque select, une restriction de type &quot;<strong>where</strong> IsDeleted = false&quot;. C&#39;est ennuyant mais surtout risqué en cas d&#39;oubli. Il faut donc gérer cela de manière automatique.</p>
+<p>ASP.NET Boilerplate fournit des <strong>filtres sur les données</strong> qui peuvent filtrer automatiquement les entités en respectant quelques conventions. Il existe des filtres prédéfinis, mais vous pouvez créez facilement des filtres personnalisés.</p>
 
-<h3 id="DocPredefinedFilters">Pre-defined filters</h3>
+<h3 id="DocPredefinedFilters">Filtres prédéfinis</h3>
 
 <h4 id="DocSoftDelete">ISoftDelete</h4>
-<p>Soft-delete filter is used to automatically filter (extract from results) 
-deleted entities while querying database. If an
-<a href="/Pages/Documents/Entities">entity</a> should be soft-deleted, it must 
-implement <strong>ISoftDelete</strong> interface which defines only <strong>IsDeleted</strong> 
-property. Example:</p>
+<p>La filtre Soft-delete est utilisé pour filtrer automatiquement (enlever des résultats) les entités marquées comme effacées lors des requêtes en base de données. Si une <a href="/Pages/Documents/Entities">entité</a> souhaite bénéficier du &quot;soft-deleted&quot;, elle doit alors implémenter l&#39;interface <strong>ISoftDelete</strong> qui définit uniquement une propriété <strong>IsDeleted</strong>. Exemple:</p>
 <pre lang="cs">public class Person : Entity, ISoftDelete
 {
     public virtual string Name { get; set; }
 
     public virtual bool IsDeleted { get; set; }
 }</pre>
-<p>A <strong>Person </strong>entity is not actually deleted from database, 
-instead <strong>IsDeleted </strong>property is set to true when need to delete 
-it. This is done automatically by ASP.NET Boilerplate when you use <strong>
-<a href="/Pages/Documents/Repositories#DocDeleteEntity">IRepository.Delete</a></strong> 
-method (you can manually set IsDeleted to true, but Delete method is more 
-natural and preffered way).</p>
-<p>After implementing ISoftDelete, when you get list of People from database, 
-deleted people are not retrieved. Here, an example class that uses a person 
-repository to get all people:</p>
+<p>L&#39;entité <strong>Person</strong> n&#39;est pas effacée actuellement de la base de données, sauf si la propriété <strong>IsDeleted </strong>est définie à vrai. Cette affectation est réalisée automatiquement par ASP.NET Boilerplate lorsque vous utilisez la méthode <strong>
+    <a href="/Pages/Documents/Repositories#DocDeleteEntity">IRepository.Delete</a></strong> (vous pouvez affecter manuellement sa valeur à vrai, mais la méthode Delete est l&#39;usage préconisé et c&#39;est plus naturel)</p>
+<p>En implémentant ISoftDelete, les requêtes ne ramèneront plus les résultats marqués comme effacés. Voici un exemple d&#39;une classe qui utilise l&#39;entrepôt Person pour obtenir la liste de toutes les personnes:</p>
 <pre lang="cs">public class MyService
 {
     private readonly IRepository&lt;Person&gt; _personRepository;
@@ -64,51 +47,37 @@ repository to get all people:</p>
         return _personRepository.GetAllList();
     }
 }</pre>
-<p>GetPeople method only gets Person entities which has IsDeleted = false (not 
-deleted). All repository methods and also navigation properties properly works. 
-We could add some other Where conditions, joins.. etc. It will automatically add 
-IsDeleted = false condition properly to the generated SQL query.</p>
+<p>La méthode GetPeople récupère uniquement les personnes qui ont IsDeleted à false (non supprimées). Toutes les méthodes de l&#39;entrepôt mais aussi les propriétés de parcours fonctionneront proprement. Nous pouvons ajouter d&#39;autres restrictions, d&#39;autres jointures, etc. La condition IsDeleted = false sera toujours ajoutée proprement dans la requête SQL générée.</p>
 
 <div class="bs-callout bs-callout-warning">
-	<h4>When enabled?</h4>
-	<p>ISoftDelete filter is always enabled unless you explicitly disable it.</p>
+	<h4>Quand est-ce activé ?</h4>
+	<p>Le filtre ISoftDelete est toujours activé à moins que vous le désactiviez explicitement.</p>
 </div>
 
-<p><span class="auto-style1">A side note</span>: If you implement
-<a href="/Pages/Documents/Entities#DocSoftDelete">IDeletionAudited</a> (which 
-extends ISoftDelete) then deletion time and deleter user id are also 
-automatically set by ASP.NET Boilerplate.</p>
+<p><span class="auto-style1">nb</span>: Si vous implémentez <a href="/Pages/Documents/Entities#DocSoftDelete">IDeletionAudited</a> (qui étend SoftDelete) le moment de la suppression et son auteur seront alors automatiquement gérés par ASP.NET Boilerplate.</p>
 
 <h4 id="DocMustHaveTenant">IMustHaveTenant</h4>
-<p>If you are building multi-tenant applications (store all tenant datas in 
-single database), you definitely do not want a tenant accidently see other's 
-data. You can implement <strong>IMustHaveTenant</strong> in that case. Example:</p>
+<p>Si vous concevez des applications multi-clients (&quot;multi-tenants&quot; = stockage de données de différents clients dans une même bases de données), vous ne souhaitez surtout pas qu&#39;un client puisse voir les données d&#39;un autre, accidentellement. Vous pouvez alors implémenter <strong>IMustHaveTenant</strong> dans ce cas. Exemple:</p>
 <pre lang="cs">public class Product : Entity, <strong>IMustHaveTenant</strong>
 {
     <strong>public int TenantId { get; set; }</strong>
         
     public string Name { get; set; }
 }</pre>
-<p><strong>IMustHaveTenant</strong> defines <strong>TenantId </strong>to 
-distinguish different tenant entities. ASP.NET Boilerplate uses
-<a href="/Pages/Documents/Abp-Session">IAbpSession</a> to get current TenantId 
-and automatically filter query for the current tenant.</p>
+<p><strong>IMustHaveTenant</strong> définit <strong>TenantId</strong> qui permet de faire la distinctions entre les entités des différentes clients. ASP.NET Boilerplate utilise
+<a href="/Pages/Documents/Abp-Session">IAbpSession</a> pour obtenir l&#39;identifiant TenantId 
+    courant et filtre automatiquement les requêtes en fonction du client courant.</p>
 
 <div class="bs-callout bs-callout-warning">
-	<h4>When enabled?</h4>
-	<p>IMustHaveTenant is enabled by default.</p>
-	<p>If current user is not logged in to the system or current user is a <strong>host</strong> user (Host user is an upper level user that can 
-	manage tenants and tenant datas), ASP.NET Boilerplate automatically <strong>
-	disables</strong> IMustHaveTenant filter. Thus, all data of all tenant's can be 
-	retrieved to the application. Notice that this is not about security, you should 
-	always <a href="/Pages/Documents/Authorization">authorize</a> sensitive data.</p>
+	<h4>Quand est-ce activé?</h4>
+	<p>IMustHaveTenant est toujours activé par défault.</p>
+	<p>Si l&#39;utilisateur courant n&#39;est pas authentifié dans l&#39;application ou si l&#39;utilisateur courant est un utilisateur <strong>hôte</strong> (L&#39;utilisateur hôte est un utilisateur ayant pour rôle d&#39;administrer les clients et leurs différentes données), ASP.NET Boilerplate <strong>
+	désactive</strong> automatiquement le filtre IMustHaveTenant dans ce cas. Toutes les données seront alors récupérées par l&#39;application. Rappelez vous bien qu&#39;il ne s&#39;agit pas là d&#39;une question de sécurité ; vous devez continuer de gérer spécifiquement <a href="/Pages/Documents/Authorization">les autorisations</a> permettant à un utilisateur d&#39;accéder à des données sensibles.</p>
 </div>
 
 <h4 id="DocMayHaveTenant">IMayHaveTenant</h4>
-<p>If an entity class shared by tenants and the host (that means an entity 
-object may 
-be owned by a tenant or the host), you can use IMayHaveTenant filter. <strong>
-IMayHaveTenant</strong> interface defines <strong>TenantId</strong> but it's <strong>
+<p>Si une entité est partagée par différents clients et par l&#39;hôte (cela signifie que l&#39;entité doit être la propriété d&#39;un client ou de l&#39;hôte), vous pouvez utiliser le filtre IMayHaveTenant. L&#39;interface <strong>
+IMayHaveTenant</strong> féfinit <strong>TenantId</strong> mais cette propriété est <strong>
 nullable</strong>.</p>
 <pre lang="cs">public class Role : Entity, <strong>IMayHaveTenant</strong>
 {
@@ -116,20 +85,16 @@ nullable</strong>.</p>
         
     public string RoleName { get; set; }
 }</pre>
-<p>A <strong>null</strong> value means this is a <strong>host</strong> entity, a <strong>non-null</strong> value means this entity 
-owned by a <strong>tenant</strong> which's Id is the TenantId. ASP.NET Boilerplate uses
-<a href="/Pages/Documents/AbpSession">IAbpSession</a> to get current TenantId. 
-IMayHaveTenant filter is not common as much as 
-IMustHaveTenant. But you may need it for common structures used by host and tenants.</p>
+<p>Une valeur <strong>nule</strong> signifie que c&#39;est une entité propriété d&#39;un <strong>hôte</strong>, alors qu&#39;une valeur <strong>non-nule</strong> implique qu&#39;elle appartient à un <strong>client</strong> en rapport avec l&#39;id spécifié. ASP.NET Boilerplate utilise <a href="/Pages/Documents/AbpSession">IAbpSession</a> pour obtenir la valeur TenantId courante. 
+    Le filtre IMayHaveTenant n&#39;est pas aussi strict que IMustHaveTenant. Mais vous pouvez en avoir besoin pour des structures potentiellement communes entre hôtes et clients.</p>
 
 <div class="bs-callout bs-callout-warning">
-	<h4>When enabled?</h4>
-	<p>IMayHaveTenant is always enabled unless you explicitly disable it.</p>
+	<h4>Quant est-ce activé?</h4>
+	<p>IMayHaveTenant est toujours activé à moins que vous ne le désactiviez explicitement.</p>
 </div>
 
-<h3 id="DocDisableFilters">Disable filters</h3>
-<p>You can disable a filter per <a href="/Pages/Documents/Unit-Of-Work">unit of 
-work</a> by calling <strong>DisableFilter</strong> method as shown below:</p>
+<h3 id="DocDisableFilters">Désactiver les filtres</h3>
+<p>Vous pouvez désactiver un filtre au sein d&#39;une <a href="/Pages/Documents/Unit-Of-Work">unité de travail</a> en utilisant la méthode <strong>DisableFilter</strong> comme indiqué ci-dessous:</p>
 <pre lang="cs">var people1 = _personRepository.GetAllList();
 
 using (_unitOfWorkManager.Current.DisableFilter(AbpDataFilters.SoftDelete))
@@ -138,58 +103,36 @@ using (_unitOfWorkManager.Current.DisableFilter(AbpDataFilters.SoftDelete))
 }
 
 var people3 = _personRepository.GetAllList();</pre>
-<p>DisableFilter method gets one or more filter names as strings. 
-AbpDataFilters.SoftDelete is a constant string that contains name of the 
-standard soft 
-delete filter of ASP.NET Boilerplate.</p>
-<p><strong>people2</strong> can also get deleted people while people1 and people3 will be only 
-non-deleted people. With <strong>using </strong>statement, you can disable a filter in a
-<strong>scope</strong>. 
-If you don't use using stamement, the filter will be disabled until end of the&nbsp;current unit of work or you enable it again 
-explicitly.</p>
-<p>You can inject <strong>IUnitOfWorkManager </strong>and use as in the example. Also, you can 
-use <strong>CurrentUnitOfWork </strong>property as a shortcut in an application service (that 
-is derived 
-from ApplicationService class).</p>
+<p>La méthode DisableFilter attend un ou plusieurs noms de filtre en paramètres. 
+AbpDataFilters.SoftDelete est une constante de type string qui contient le nom du filtre standard &quot;soft delete&quot; d&#39;ASP.NET Boilerplate.</p>
+<p><strong>people2</strong> récupère les instances supprimées de people alors que people1 et people3 ne les récupèrent pas. L&#39;usage du mot clef <strong>using </strong>permet de désactiver un filtre au sein d&#39;un <strong>bloc de code</strong>. 
+    Si vous n&#39;utilisez pas le mot clef &quot;using&quot;, le filtre sera désactivé jusqu&#39;à la fin de l&#39;unité de travail, à moins que vous ne le réactiviez explicitement.</p>
+<p>Vous pouvez injecter <strong>IUnitOfWorkManager</strong> et l&#39;utiliser comme dans l&#39;exemple. Vous pouvez aussi utiliser la propriété <strong>CurrentUnitOfWork</strong> comme un raccourci dans le service applicatif (qui dérive de la classe ApplicationService).</p>
 
 <div class="bs-callout bs-callout-warning">
-	<h4>About using statement</h4>
-	<p>If a filter is enabled when you call 
-	the DisableFilter method with a using statement, the filter is disabled, then 
-	automatically re-enabled after using statement.
-	But if the filter was already 
-	disabled before the using statement, DisableFilter actually does nothing and 
-	the filter remains disabled even after 
-	the using statement.</p>
+	<h4>A propos du mot clef &quot;using&quot;</h4>
+	<p>Si un filtre est activé lorsque vous appelez la méthode DisableFilter avec le mot clef &quot;using&quot;, le filtre est désactivé, et réactivé juste après le bloc using. Mais si le filtre était déjà désactivé avoir le bloc using, DisableFilter ne fera rien et le filtre restera désactivé, même après le bloc using.</p>
 </div>
 
-<h3 id="DocEnableFilters">Enable filters</h3>
-<p>You can enable a filter in a unit of work using <strong>EnableFilter </strong>
-method, as similar to (and opposite of) DisableFilter. EnableFilter also returns disposable to 
-automatically re-disable the filter.</p>
+<h3 id="DocEnableFilters">Activation des filtres</h3>
+<p>Vous pouvez activer un filtre au sein d&#39;une unité de travail en utilisant la méthode <strong>EnableFilter</strong>, comme avec la méthode (à l&#39;effet inverse) DisableFilter. EnableFilter libère automatiquement la désactivation du filtre.</p>
 
-<h3 id="DocSetFilterParams">Setting filter parameters</h3>
-<p>A filter can be <strong>parametric</strong>. IMustHaveTenant filter is an 
-example of these types of filters since current tenant's Id is determined on 
-runtime. For such filters, we can change filter value if needed. Example:</p>
+<h3 id="DocSetFilterParams">Paramétrer un filtre</h3>
+<p>Un filtre peut être <strong>parametré</strong>. Le filtre IMustHaveTenant en est un exemple car l&#39;Id du client courant est déterminé au fil de l&#39;exécution. Cela signifie qu&#39;il est possible de changer la valeur du filtre lorsque cela est requis. Exemple:</p>
 <pre lang="cs">CurrentUnitOfWork.SetFilterParameter("PersonFilter", "personId", 42);</pre>
-<p>Another example: To set the tenantId value for the IMayHaveTenant filter:</p>
+<p>Un autre exemple: Pour affecter la valeur de tenantId au niveau du filtre IMayHaveTenant:</p>
 <pre lang="cs">CurrentUnitOfWork.SetFilterParameter(AbpDataFilters.MayHaveTenant, AbpDataFilters.Parameters.TenantId, 42);</pre>
 
-<p>SetFilterParameter method also returns an IDisposable. So, we can use it in a
-<strong>using</strong> statement to automatically <strong>restore the old value</strong> 
-after using statement.</p>
+<p>La méthode SetFilterParameter fournit aussi un IDisposable. Nous pouvons donc l&#39;utiliser au sein d&#39;un bloc <strong>using</strong> et <strong>restorer l&#39;ancienne valeur</strong> après le bloc using.</p>
 
-<h3 id="DocDefineCustomFilters">Defining custom filters</h3>
-<p>To create a custom filter and integrate to ASP.NET Boilerplate, first we 
-should define an interface that will be implemented by entities which use this 
-filter. Assume that we want to automatically filter entities by PersonId. 
-Example interface:</p>
+<h3 id="DocDefineCustomFilters">Définir des filtres personnalisés</h3>
+<p>Pour créer un filtre personnalisé et l&#39;intégrer à ASP.NET Boilerplate, nous devons d&#39;abord définir une interface qui sera implémentée par les entités souhaitant utiliser ce filtre. Imaginons que nous voulons filtrer automatiquement les entités par un identifiant PersonId. 
+    Voici une interface possible:</p>
 <pre lang="cs">public interface IHasPerson
 {
     int PersonId { get; set; }
 }</pre>
-<p>Then we can implement this interface for needed entities. Example entity:</p>
+<p>Ensuite, nous l&#39;implémentons dans nos entités. Exemple:</p>
 <pre lang="cs">public class Phone : Entity, IHasPerson
 {
     [ForeignKey("PersonId")]
@@ -198,10 +141,8 @@ Example interface:</p>
 
     public virtual string Number { get; set; }
 }</pre>
-<p>Since ASP.NET Boilerplate uses <strong>
-<a href="https://github.com/jcachat/EntityFramework.DynamicFilters" target="_blank">EntityFramework.DynamicFilters</a></strong>, we use it's 
-rules to define the filter. In our <strong>DbContext </strong>class, we override 
-<strong>OnModelCreating </strong>and define filter as shown below:</p>
+<p>Comme ASP.NET Boilerplate utilise <strong>
+    <a href="https://github.com/jcachat/EntityFramework.DynamicFilters" target="_blank">EntityFramework.DynamicFilters</a></strong>, nous pouvons utiliser ses fonctionnalités pour définir le filtre. Dans notre classe <strong>DbContext</strong>, nous surchargeons<strong> OnModelCreating </strong>&nbsp;et définissons le filtre comme ci-dessous:</p>
 
 <pre lang="cs">protected override void OnModelCreating(DbModelBuilder modelBuilder)
 {
@@ -209,44 +150,32 @@ rules to define the filter. In our <strong>DbContext </strong>class, we override
 
     modelBuilder.Filter("PersonFilter", (IHasPerson entity, int personId) =&gt; entity.PersonId == personId, 0);
 }</pre>
-<p>"PersonFilter" is the unique name of the filter here. Second parameter defines 
-filter interface and personId filter parameter (not needed if filter is not 
-parametric), last parameter is the default value of the personId.</p>
-<p>As the last thing, we should register this filter to ASP.NET Boilerplate's 
-unit of work system in PreInitialize method of our 
+<p>"PersonFilter" est le nom d&#39;identification du filtre mentionné ici. Le second paramètre définit l&#39;interface du filtre et le paramètre sur lequel porte le filtre (inutile si le filtre n&#39;a pas de paramètre), le dernier paramètre est la valeur par défaut de &quot;personId&quot;.</p>
+<p>Une dernière chose, nous devons enregistrer ce filtre au sein de l&#39;unité de travail d&#39;ASP.NET Boilerplate, et plus précisémment dans la méthode PreInitialize de notre 
 <a href="/Pages/Documents/Module-System">module</a>:</p>
 <pre lang="cs">Configuration.UnitOfWork.RegisterFilter("PersonFilter", false);</pre>
-<p>First parameter is same unique name we defined before. Second parameter 
-indicates whether this filter is enabled or disabled by default. After declaring such a parametric filter, we 
-can use it by supplying it's value on 
-runtime.</p>
+<p>Le premier paramètre est le nom, unique, que nous avons défini précédemment. Le second paramètre indique si le filtre est activé ou désactivé par défaut. Après avoir déclaré ce paramètre, nous pouvons l&#39;utiliser et récupérer ainsi sa valeur courante dans le fil de l&#39;exécution du programme.</p>
 <pre lang="cs">using (CurrentUnitOfWork.EnableFilter("PersonFilter"))
 {
     CurrentUnitOfWork.SetFilterParameter("PersonFilter", "personId", 42);
     var phones = _phoneRepository.GetAllList();
     //...
 }</pre>
-<p>We could get the personId from some source instead of statically coded. The example above was for parametric filters. A filter can have zero or more 
-parameters. If it has no parameter, it's not needed to set the filter value. 
-Also, if it's enabled by default, no need to enable manually (surely, we can 
-disable it).</p>
+<p>Nous pourrions obtenir la valeur courante de personId avec un peu de code au lieu de le coder en dur. L&#39;exemple ci-dessus était pour les filtres paramétrables. Un filtre qui peut attendre zéro ou n paramètres. S&#39;il n&#39;a pas de paramètres, il n&#39;est pas utile d&#39;affecter la valeur au filtre. S&#39;il est activé par défaut, il n&#39;y a donc pas nécessité de l&#39;activer manuellement (nous pouvons le désactiver sans souci).</p>
 
 <div class="bs-callout bs-callout-warning">
-	<h4>Documentation for EntityFramework.DynamicFilters</h4>
-	<p>For more information on dynamic data filters, see documentation on it's github page: 
+	<h4>Documentation relative à EntityFramework.DynamicFilters</h4>
+	<p>Pour plus d&#39;informations sur les filtres dynamiques, reportez vous à la documentation suivante: 
 	<a href="https://github.com/jcachat/EntityFramework.DynamicFilters">https://github.com/jcachat/EntityFramework.DynamicFilters</a>
 	</p>
 </div>
 
-<p>We can create custom filters for security, active/passive entities and so on.</p>
+<p>Nous pouvons créer des filtres personnalisés pour gérer la sécurité, les entités d&#39;état actif/archivé et autres.</p>
 
-<h3 id="DicOtherORMs">Other ORMs</h3>
-<p>ASP.NET Boilerplate data filtering is implemented for EntityFramework and 
+<h3 id="DicOtherORMs">Autres ORMs</h3>
+<p>Le filtrage de données d&#39;ASP.NET Boilerplate implémente EntityFramework et 
 NHibernate. 
-Not available for other ORMs yet. But, actually, you can mimic it for 
-most cases as long as you're using <strong>repositories</strong> to get data. In this case, you 
-can create a custom <a href="/Pages/Documents/Repositories">repository</a> and 
-override <strong>GetAll</strong> and other data retrieve methods if needed.</p>
+    Les autres ORMs ne sont pas encore gérés. Cepdendant, vous pouvez imiter ce comportement si vous utilisez systématiquement les classes d&#39;<strong>entrepôts</strong> pour récupérer les données. Dans ce cas, vous pouvez créer une surcharge personnalisée de<strong> GetAll</strong> et des autres méthodes ayant le même but (la récupération de données).</p>
 
 </div>
 
