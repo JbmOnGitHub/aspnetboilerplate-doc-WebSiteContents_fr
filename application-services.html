@@ -3,51 +3,40 @@
 
 <head>
 <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
-<title>Entities</title>
+<title>Les entités</title>
 <link type="text/css" rel="stylesheet" href="bootstrap.min.css" />
 </head>
 
 <body>
 
 <ul>
-	<li><a href="#DocIApplicationServiceInterface">IApplicationService Interface</a><ul>
-		<li><a href="#DocAppServiceClass">ApplicationService class</a></li>
+	<li><a href="#DocIApplicationServiceInterface">L&#39;interface IApplicationService</a><ul>
+		<li><a href="#DocAppServiceClass">La classe ApplicationService</a></li>
 	</ul>
 	</li>
-	<li><a href="#DocUsingUow">Unit of work</a><ul>
-		<li><a href="#DocUowTransactions">For connection &amp; transaction 
-		management</a></li>
-		<li><a href="#UowAutoSave">For automatically saving changes</a></li>
-		<li><a href="#DocUowMore">More</a></li>
+	<li><a href="#DocUsingUow">Unité de travail</a><ul>
+		<li><a href="#DocUowTransactions">Pour la gestion des connexions et des transactions</a></li>
+		<li><a href="#UowAutoSave">Pour automatiser la persistence des modifications</a></li>
+		<li><a href="#DocUowMore">Pour aller plus loin</a></li>
 	</ul>
 	</li>
-	<li><a href="#DocAppServiceLifecycle">Lifecycle of an application service</a></li>
+	<li><a href="#DocAppServiceLifecycle">Cycle de vie d&#39;un service applicatif</a></li>
 </ul>
 
 <p>
-    Application Services are used to expose domain logic to the 
-	presentation layer. An Application Service is called from presentation layer 
-	with a DTO (Data Transfer Object) as parameter, uses domain objects to perform some 
-	specific business logic and returns a DTO back to the presentation layer. 
-	Thus, Presentation layer is completely isolated from Domain layer. In an 
-	ideally layered application, presentation layer never directly works with 
-	domain objects.</p>
-<h3 id="DocIApplicationServiceInterface">
-    IApplicationService interface</h3>
+    Les services applicatifs sont utilisés pour exposer la logique métier à la couche de présentation. Un service applicatif est appelé depuis la couche de présentation à travers un DTO passé en paramètre. Il manipule les objets métiers pour effectuer une tâche suivant une logique métier et retourne un DTO à la couche de présentation. 
+	De ce fait, la couche de présentation est complètement isolée de la couche du domaine métier. Idéalement, la couche de présentation ne devrait jamais piloter directement les objets du domaine métier.</p>
+<h3 id="DocIApplicationServiceInterface">L&#39;interface IApplicationService</h3>
 <p>
-    In ASP.NET Boilerplate, an application service <strong>should</strong> implement 
-	<strong>IApplicationService</strong> interface. It's good to create an 
-	<strong>interface</strong> for each 
-	Application Service. So, we first define an interface for an application 
-	service as shown below:</p>
+    Dans ASP.NET Boilerplate, un service applicatif <strong>doit</strong> implémenter l&#39;interface 
+	<strong>IApplicationService</strong>. Créer une <strong>interface</strong> pour chaque service applicatif est une bonne chose. Nous devons donc définir en premier lieu l&#39;interface d&#39;un service applicatif comme illustré ci-dessous:</p>
 <pre lang="cs">public interface IPersonAppService : IApplicationService
 {
     void CreatePerson(CreatePersonInput input);
 }</pre>
 <p>
-    <strong>IPersonAppService</strong> has only one method. It's used by 
-	presentation layer to create a new person.<strong> CreatePersonInput</strong> 
-	is a DTO object as shown below:</p>
+    <strong>IPersonAppService</strong> ne possède qu&#39;une seule méthode. Elle sera utilisée par la couche de présentation pour créer une nouvelle personne.<strong> CreatePersonInput</strong> 
+	est un objet DTO composé comme suit:</p>
 <pre lang="cd">public class CreatePersonInput : IInputDto
 {
     [Required]
@@ -55,7 +44,7 @@
 
     public string EmailAddress { get; set; }
 }</pre>
-<p>Then we can implement the IPersonAppService:</p>
+<p>Nous pouvons alors implémenter IPersonAppService:</p>
 <pre lang="cs">public class PersonAppService : IPersonAppService
 {
     private readonly IRepository&lt;Person&gt; _personRepository;
@@ -77,33 +66,18 @@
         _personRepository.Insert(person);
     }
 }</pre>
-<p>There are some important points here:</p>
+<p>Plusieurs éléments sont intéressants à souligner ici:</p>
 <ul>
-	<li>PersonAppService uses 
-	<a href="/Pages/Documents/Repositories#DocRepositoryImpl">IRepository&lt;Person&gt;</a> to perform 
-	database operations. It uses <strong>constructor injection</strong> pattern. 
-	We're using <a href="/Pages/Documents/Dependency-Injection">dependency 
-	injection</a> here.</li>
-	<li>PersonAppService implements <strong>IApplicationService</strong> (since 
-	IPersonAppService extends IApplicationService), it's automatically 
-	registered to Dependency Injection system by ASP.NET Boilerplate and can be 
-	injected and used by other classes.</li>
-	<li><strong>CreatePerson</strong> method gets <strong>CreatePersonInput</strong>. 
-	It's an input DTO and automatically validated by ASP.NET Boilerplate. See
-	<a href="/Pages/Documents/Data-Transfer-Objects">DTO</a> and
-	<a href="/Pages/Documents/Validating-Data-Transfer-Objects">validation</a> 
-	documents for details.</li>
+	<li>PersonAppService utilise 
+	<a href="/Pages/Documents/Repositories#DocRepositoryImpl">IRepository&lt;Person&gt;</a> pour interagir avec la base de données. L&#39;I<strong>injection par constructeur</strong> est mise en oeuvre dans ce code.</li>
+	<li>PersonAppService implémente <strong>IApplicationService</strong> (comme 
+	IPersonAppService hérite de IApplicationService), et sera automatiquement prise en compte par le système d&#39;injection de dépendance d&#39;ASP.NET Boilerplate et sera donc injectée pour permettre son usage dans toutes les autres classes.</li>
+	<li>La méthode <strong>CreatePerson</strong> attend un paramètre <strong>CreatePersonInput</strong>. 
+	    C&#39;est un DTO d&#39;entrée et il sera automatiquement contrôlé / validé par ASP.NET Boilerplate. Reportez vous aux documents <a href="/Pages/Documents/Data-Transfer-Objects">DTO</a> et
+	<a href="/Pages/Documents/Validating-Data-Transfer-Objects">validation</a> pour obtenir plus de détails..</li>
 </ul>
-<h4 id="DocAppServiceClass">ApplicationService class</h4>
-<p>An application service should implement IApplicationService interface. Also,
-<strong>optionally</strong>, can be derived from <strong>ApplicationService</strong> 
-base class. Thus, IApplicationService is inherently implemented. Also, 
-ApplicationService class has some base functionality that makes easy to <strong>logging</strong> 
-and 
-<strong>localization</strong>. It's suggested to create a special base class for your application 
-services that extends ApplicationService class. Thus, you can add some common 
-functionality for all your application services. A sample application service 
-class is shown below:</p>
+<h4 id="DocAppServiceClass">La classe ApplicationService</h4>
+<p>Un service applicatif doit implémenter l&#39;interface IApplicationService. Il est donc <strong>possible</strong>, d&#39;hériter éventuellement de la classe <strong>ApplicationService</strong>. Ce faisant, IApplicationService sera déjà implémentée. La classe ApplicationService apporte donc quelques fonctionnalités qui facilient <strong>la journalisation d&#39;évènements</strong> et l'<strong>internationalisation </strong>(localization). Il est utile de créer votre propre classe mère pour vos services applicatifs en héritant de la classe ApplicationService. De ce fait, vous pourrez ajouter d&#39;autres fonctionnalités globales pour toutes vos classes de services applicatifs. Voici un exemple d&#39;une classe de service applicatif:</p>
 <pre lang="cs">public class TaskAppService : ApplicationService, ITaskAppService
 {
     public TaskAppService()
@@ -122,40 +96,23 @@ class is shown below:</p>
         //TODO: Add new task to database...
     }
 }</pre>
-<p>You can have a base class which defines LocalizationSourceName in it's 
-constructor. Thus, you do not repeat it for all service classes. See
-<a href="/Pages/Documents/Logging">logging</a> and
-<a href="/Pages/Documents/Localization">localization</a> documents for more 
-informations on this topics.</p>
-<h3 id="DocUsingUow">Unit of work</h3>
-<p>An application service method is a <strong>
-<a href="/Pages/Documents/Unit-Of-Work">unit of work</a></strong> by default in 
-ASP.NET Boilerplate.</p>
-<h4 id="DocUowTransactions">For connection &amp; transaction management</h4>
-<p>Say that we want to call two repository method in an application service 
-method those must be transactional. Example:</p>
+<p>Vous pouvez utiliser une classe mère qui définit LocalizationSourceName dans son constructeur. Cela vous évitera de répéter ce code dans chaque classe de services. Référez vous aux documents portant sur la <a href="/Pages/Documents/Logging">journalisation</a> et <a href="/Pages/Documents/Localization">l&#39;internatonalisation</a> pour obtenir des informations complémentaires.</p>
+<h3 id="DocUsingUow">L&#39;unité de travail</h3>
+<p>Une méthode d&#39;un service applicatif est, par défaut, une <strong>
+    <a href="/Pages/Documents/Unit-Of-Work">unité de travail</a></strong> dans ASP.NET Boilerplate.</p>
+<h4 id="DocUowTransactions">Focus sur la gestion de la connexion et des transactions</h4>
+<p>Imaginons que nous souhaitons utiliser deux méthodes de l&#39;entrepôt depuis une méthode d&#39;un service applicatif et que celles-ci doivent être transactionnelles. Exemple:</p>
 <pre lang="cs">public void CreatePerson(CreatePersonInput input)
 {
     var person = new Person { Name = input.Name, EmailAddress = input.EmailAddress };    
     _personRepository.Insert(person);
     _statisticsRepository.IncrementPeopleCount();
 }</pre>
-<p>We inserted an item to People table, then incremented people count that is 
-stored in another table field. These methods are implemented in different 
-repositories but shares same connection and transaction. So, how?</p>
+<p>Nous avons inséré un item dans la table People, ensuite nous incrémentons le compteur associé qui est stocké dans une autre table. Ces méthodes sont implémentées dans différents entrepôts mais partagent la même transaction et connexion. Par quel miracle ?</p>
 
-<p>A database connection is opened and a transaction is started at the beginning 
-of CreatePerson method by ASP.NET Boilerplate automatically. At the end of the 
-method, the transaction is commited if no exception occurs and the connection is 
-closed. Thus, all database operations in CreatePerson method is <strong>transactional</strong> 
-(<strong>atomic</strong>) and rolled back if any exception is thrown. Thus, two repository methods in 
-this example shares same connection and transaction.</p>
-<p>When you call
-<a href="/Pages/Documents/Repositories#DocGettingListOfEntities"><strong>GetAll()</strong></a> 
-method of a repository, it returns an IQueryable&lt;T&gt;. Database connection should 
-be open after calling the repository method. This is because of deferred 
-execution of IQueryable&lt;T&gt; and LINQ. Database query is actually performed when you call 
-<strong>ToList()</strong> method. See the example below:</p>
+<p>Une connexion à la base de données est ouverte et une transaction est lancée dès le début de la méthode CreatePerson par ASP.NET Boilerplate. A la fin de la méthode, la transaction est commitée en l&#39;absence d&#39;exception, et la connexion est fermée. De ce fait, toutes les opérations au sein de la méthode CreatePerson sont <strong>transactionnelles</strong> 
+(<strong>atomiques</strong>) et annulée si une exception survient. Les deux méthodes de l&#39;entrepôt partagent donc la même connexion et transaction.</p>
+<p>Lorsque vous appelez la méthode <a href="/Pages/Documents/Repositories#DocGettingListOfEntities"><strong>GetAll()</strong></a> de l&#39;entrepôt, elle retourne un objet IQueryable&lt;T&gt;. La connexion à la base de données doit être ouverte après l&#39;appel de la méthode de l&#39;entrepôt. C&#39;est possible en raison de l&#39;exécution différée (tardive) de l&#39;objet IQueryable&lt;T&gt; et de LINQ. La requete sql ne sera déclenchée qu&#39;à partir du moment où vous appelerez la méthode <strong>ToList()</strong>. Voici un exemple:</p>
 <pre lang="cs">public SearchPeopleOutput SearchPeople(SearchPeopleInput input)
 {
     //Get IQueryable&lt;Person&gt;
@@ -177,37 +134,21 @@ execution of IQueryable&lt;T&gt; and LINQ. Database query is actually performed 
 
     return new SearchPeopleOutput {People = Mapper.Map&lt;List&lt;PersonDto&gt;&gt;(people)};
 }</pre>
-<p>Since an application service method is a unit of work, database connection is 
-open during the method execution. If you use GetAll() in a class that is not an 
-application service, you should explicitly use
-<a href="/Pages/Documents/Unit-Of-Work">unit of work</a>.</p>
-<p>Note that I used AutoMapper library to convert List&lt;Person&gt; to 
-List&lt;PersonDto&gt;. See
-<a href="/Pages/Documents/Data-Transfer-Objects#DocAutoMapping">DTO document</a> 
-for details.</p>
-<h4 id="UowAutoSave">For automatically saving changes</h4>
-<p>For a unit of work method, ASP.NET Boilerplate saves 
-all changes at the end of the method automatically. Assume that we need an 
-application service method to update name of a person:</p>
-<pre lang="cs">public void UpdateName(UpdateNameInput input)
-{
+<p>Comme une méthode d&#39;un service applicatif est une unité de travail, la connexion à la base de données est ouverte au moment de l&#39;exécution de la méthode. Si vous utilisez GetAll() dans une classe qui n&#39;est pas un service applicatif,&nbsp; vous devez alors déclarer explicitement l&#39;usage de l&#39;<a href="/Pages/Documents/Unit-Of-Work">unité de travail</a>.</p>
+<p>Vous avez remarqué l&#39;usage de la librairie AutoMapper pour convertir List&lt;Person&gt; en 
+List&lt;PersonDto&gt;. Référez vous au document f="/Pages/Documents/Data-Transfer-Objects#DocAutoMapping">DTO</a> pour plus de détails.</p>
+<h4 id="UowAutoSave">Focus Focus sur la persistence automatique des modifications</h4>
+<p>Comme il s&#39;agit d&#39;une untité de travail, ASP.NET Boilerplate enregistre automatiquement toutes les modifications en base de données à la fin du bloc de la méthode. Imaginons que nous avons besoin d&#39;une méthode de service applicatif qui met à jour le nom d&#39;une personne:</p>
+<pre lang="cs">public void UpdateName(UpdateNameInput input) {
     var person = _personRepository.Get(input.PersonId);
     person.Name = input.NewName;
 }</pre>
-<p>That's all, name was changed! We did not even called _personRepository.Update 
-method. O/RM framework keep track of all changes of entities in a unit of work 
-and reflects changes to the database.</p>
-<h4 id="DocUowMore">More</h4>
-<p>See <a href="/Pages/Documents/Unit-Of-Work">unit of work</a> documentation 
-for more.</p>
+<p>C&#39;est tout, le nom a été modifié! Nous n&#39;avons pas à appeler manuellement la méthode&nbsp; _personRepository.Update. L&#39;O/RM surveille les changements qui se sont produits dans cette untité de travail et s&#39;occupe de la persistence des données.</p>
+<h4 id="DocUowMore">Pour aller plus loin</h4>
+<p>Reportez vous à la documentation <a href="/Pages/Documents/Unit-Of-Work">unité de travail</a>.</p>
 
-<h3 id="DocAppServiceLifecycle">Lifecycle of an application service</h3>
-<p>All application service instances are <strong>Transient</strong>. It means, they are 
-instantiated per usage. ASP.NET Boilerplate strongly uses Dependency Injection 
-technique. When an application service class needed to be injected, a new instance of the 
-class is created automatically by dependency injection container. See
-<a href="/Pages/Documents/Dependency-Injection">Dependency Injection</a> 
-documentation for more information.</p>
+<h3 id="DocAppServiceLifecycle">Cycle de vie d&#39;un service applicatif</h3>
+<p>Toutes les instances de services applicatifs sont <strong>Transient</strong>. Cela implique qu&#39;elles sont instanciées à chaque usage. ASP.NET Boilerplate utilise massivement l&#39;Injection de Dépendance. Lorsqu&#39;une classe d&#39;un service applicatif doit être injectée, une nouvelle instance de cette classe est automatiquement créée par le conteneur gérant l&#39;injection de dépendance. La documentation <a href="/Pages/Documents/Dependency-Injection">Injection de Dépendance</a> traite de ce sujet.</p>
 
 </body>
 
